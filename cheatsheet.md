@@ -63,7 +63,7 @@
 
 - Ctrl + n: Switch to the next file in the buffer.
 - Ctrl + p: Switch to the previous file in the buffer.
-
+- Leader + ch: Open cheatsheet file
 ### Telescope Keybindings
 
 - Leader + ff: Use Telescope to list files in the current working directory (respects .gitignore).
