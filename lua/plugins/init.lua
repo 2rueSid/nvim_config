@@ -47,8 +47,6 @@ local plugins = {
         event = { "BufEnter" },
         config = function(_, opts)
             require("sttusline").setup {
-                statusline_color = "#FFC0CB",
-
                 laststatus = 3,
                 disabled = {
                     filetypes = {
