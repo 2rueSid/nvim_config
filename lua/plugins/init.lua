@@ -72,11 +72,6 @@ local plugins = {
         end,
   },
   -- tabline
-  {
-  'akinsho/bufferline.nvim',
-   version = "*",
-   dependencies = 'nvim-tree/nvim-web-devicons'
-  },
    {
     'Bekaboo/dropbar.nvim',
     dependencies = {
@@ -142,6 +137,10 @@ local plugins = {
       case_insensitive_regex = false,
       })
     end
+  },
+  -- theme
+  {
+    "EdenEast/nightfox.nvim"
   },
   {
     "ThePrimeagen/harpoon",
