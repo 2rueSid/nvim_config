@@ -1,6 +1,6 @@
-local paths = require("constants.path")
+local C = require("constants")
 
-local lazypath = paths.LAZY_PATH
+local lazypath = C.path.LAZY_PATH
 
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({

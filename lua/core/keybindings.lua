@@ -1,11 +1,13 @@
-local K = require("constants.keys")
+local C = require("constants")
+local utils = require("core.utils")
 
 -- LEADER KEY
-vim.g.mapleader = K.LEADER_KEY
+vim.g.mapleader = C.keys.LEADER_KEY
 
 -- BUILDIN
 vim.keymap.set('n', '<C-n>', function() vim.cmd('bnext') end, {}) -- next file in buffer
 vim.keymap.set('n', '<C-p>', function() vim.cmd('bprev') end, {}) -- prev file in buffer
+vim.keymap.set('n', '<leader>ch', function() utils.open_file(C.path.CHEATSHEET_FILE) end, { noremap = true, silent = true })
 
 -- TELESCOPE
 local builtin = require('telescope.builtin')
