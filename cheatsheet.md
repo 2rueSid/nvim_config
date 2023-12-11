@@ -14,6 +14,9 @@
 - `gg`: Move to the beginning of the file.
 - `G`: Move to the end of the file.
 - `[number][command]`: Perform `[command]` `[number]` times; e.g., `10+w` moves 10 words forward.
+- { - moves cursor paragrpaht top, paragmraph means to the next whitespace
+- } - moves cursor paragraph down;
+- :x - goes to the line x in file
 
 ### Finding Characters
 
@@ -31,6 +34,11 @@
 - `Ctrl + r`: Redo the last change.
 - `[command][motion]`: Combine a command with a motion; e.g., `d10k` deletes 10 lines upward.
 
+### Search Mode
+- /[string] - search string in file from top=down
+- ?[string] - search string in file from down=top
+- * - takes word under the cursor and search all occurences in file top=donw
+- # - takes word under the cursor and search all occurences in file donw-top
 ### Visual Mode
 
 - `v`: Enter visual mode to highlight text.
@@ -60,7 +68,8 @@
 ## Keybindings
 
 ### Built-in Navigation
-
+- Ctrl + d: Go down half screen and center cursor to the center
+- Ctrl + u: Go up half screen and center cursor to the center
 - Ctrl + n: Switch to the next file in the buffer.
 - Ctrl + p: Switch to the previous file in the buffer.
 - Leader + ch: Open cheatsheet file

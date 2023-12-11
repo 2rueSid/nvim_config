@@ -12,7 +12,6 @@ local plugins = {
     end
   },
   "alexaandru/nvim-lspupdate",
-
   -- Telescope
   {
     "nvim-telescope/telescope.nvim",
@@ -30,6 +29,59 @@ local plugins = {
         telescope.load_extension(ext)
       end
     end,
+  },
+  -- nvim-tree
+  {
+    "nvim-tree/nvim-tree.lua",
+    config = function()
+      require("nvim-tree").setup()
+    end,
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
+  -- status line
+    {
+        "sontungexpt/sttusline",
+        dependencies = {
+            "nvim-tree/nvim-web-devicons",
+        },
+        event = { "BufEnter" },
+        config = function(_, opts)
+            require("sttusline").setup {
+                statusline_color = "#FFC0CB",
+
+                laststatus = 3,
+                disabled = {
+                    filetypes = {
+                    },
+                    buftypes = {
+                    },
+                },
+                components = {
+                    "mode",
+                    "filename",
+                    "git-branch",
+                    "git-diff",
+                    "%=",
+                    "diagnostics",
+                    "lsps-formatters",
+                    "indent",
+                    "pos-cursor",
+                    "pos-cursor-progress",
+                },
+            }
+        end,
+  },
+  -- tabline
+  {
+  'akinsho/bufferline.nvim',
+   version = "*",
+   dependencies = 'nvim-tree/nvim-web-devicons'
+  },
+   {
+    'Bekaboo/dropbar.nvim',
+    dependencies = {
+      'nvim-telescope/telescope-fzf-native.nvim'
+    }
   },
   {
     "ThePrimeagen/harpoon",
