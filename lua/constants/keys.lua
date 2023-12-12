@@ -1,3 +1,3 @@
 return {
-  LEADER_KEY="\\"
+  LEADER_KEY=" "
 }
