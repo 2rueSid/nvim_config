@@ -1,9 +1,37 @@
-
-
 local plugins = {
   "neovim/nvim-lspconfig",
   "nvim-lua/plenary.nvim",
   "alexaandru/nvim-lspupdate",
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    lazy=false,
+    config = function ()
+      local opts = require("plugins.configs.lualine")
+      require 'lualine'.setup(opts)
+    end
+  },
+  {
+    "utilyre/barbecue.nvim",
+    name = "barbecue",
+    version = "*",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = require("plugins.configs.barbecue"),
+    config = function (_, opts)
+      require("barbecue").setup(opts)
+    end,
+    lazy=false,
+  },
+  {
+    'NvChad/nvim-colorizer.lua',
+    lazy=false,
+    config = function ()
+      require 'colorizer'.setup()
+    end
+  },
   -- Theme
   {
     "catppuccin/nvim",
@@ -82,6 +110,15 @@ local plugins = {
     event = "InsertEnter",
     opts = {}
   },
+  {
+  "folke/which-key.nvim",
+  event = "VeryLazy",
+  init = function()
+    vim.o.timeout = true
+    vim.o.timeoutlen = 300
+  end,
+  opts = {}
+}
 }
 
 -- check if lazyvim installed
