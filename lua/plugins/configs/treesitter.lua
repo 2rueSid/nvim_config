@@ -1,5 +1,5 @@
 return {
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "rust", "tsx", "typescript", "python", "yaml", "cpp", "go", "javascript" },
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "rust", "tsx", "typescript", "python", "yaml", "cpp", "go", "javascript", "toml" },
   additional_vim_regex_highlighting = false,
   sync_install = false,
 
