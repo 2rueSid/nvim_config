@@ -17,6 +17,17 @@ local plugins = {
     end,
     lazy=false
   },
+  -- LSP
+  {
+    "neovim/nvim-lspconfig",
+    lazy=false,
+    dependencies = {
+      { "antosha417/nvim-lsp-file-operations", config = true },
+    },
+    config = function ()
+      require "plugins.configs.lsp_config"
+    end
+  },
   -- Formatter
   {
     "mhartington/formatter.nvim",
@@ -38,56 +49,49 @@ local plugins = {
   },
    -- CMP
   {
-	  "L3MON4D3/LuaSnip",
-	  version = "v2.*",
-    build = "make install_jsregexp",
-    lazy=false,
-  },
-  {
-    "hrsh7th/cmp-nvim-lsp",
-    lazy=false,
-  },
-  {
-    "hrsh7th/cmp-buffer",
-    lazy=false,
-  },
-  {
-    "hrsh7th/cmp-path",
-    lazy=false,
-  },
-  {
-    "hrsh7th/cmp-cmdline",
-    lazy=false,
-  },
-  {
     "hrsh7th/nvim-cmp",
-    lazy=false,
-    config = function ()
-      require "plugins.configs.cmp".setup()
-    end
-  },
-  {
-    "onsails/lspkind.nvim",
-    lazy=false
-  },
-  {
-    "saadparwaiz1/cmp_luasnip",
-    lazy=false
-  },
-  -- LSP
-  {
-    "neovim/nvim-lspconfig",
-    lazy=false,
-    event = { "BufReadPre", "BufNewFile" },
+    -- for insert mode enable cmp
+    event = "InsertEnter",
     dependencies = {
+      {
+	      "L3MON4D3/LuaSnip",
+	      version = "v2.*",
+        build = "make install_jsregexp",
+        dependencies = "rafamadriz/friendly-snippets",
+        opts = { history = true, updateevents = "TextChanged,TextChangedI" },
+        config = function(_, opts)
+          require("plugins.configs.luasnip").setup(opts)
+        end,
+      },
+      {
+        "windwp/nvim-autopairs",
+        opts = {
+          fast_wrap = {},
+          disable_filetype = { "TelescopePrompt", "vim" },
+        },
+        config = function(_, opts)
+          require("nvim-autopairs").setup(opts)
+          local cmp_autopairs = require "nvim-autopairs.completion.cmp"
+          require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
+        end,
+      },
+      "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-nvim-lsp",
-      { "antosha417/nvim-lsp-file-operations", config = true },
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
     },
-    config = function ()
-      require "plugins.configs.lsp_config".setup()
-    end
+
+    opts = function()
+      return require("plugins.configs.cmp")
+    end,
+    config = function(_, opts)
+      require("cmp").setup(opts)
+    end,
+    lazy=false
   },
-  "alexaandru/nvim-lspupdate",
+
   -- Auto Session
   {
     "rmagatti/auto-session",
@@ -213,21 +217,16 @@ local plugins = {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
   },
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    opts = {}
-  },
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    init = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 300
-    end,
-    opts = {},
-    lazy=false
-  }
+  -- {
+  --   "folke/which-key.nvim",
+  --   event = "VeryLazy",
+  --   init = function()
+  --     vim.o.timeout = true
+  --     vim.o.timeoutlen = 300
+  --   end,
+  --   opts = {},
+  --   lazy=false
+  -- }
 }
 
 -- check if lazyvim installed

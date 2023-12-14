@@ -38,7 +38,7 @@
 - /[string] - search string in file from top=down
 - ?[string] - search string in file from down=top
 - * - takes word under the cursor and search all occurences in file top=donw
-- # - takes word under the cursor and search all occurences in file donw-top
+- * - takes word under the cursor and search all occurences in file donw-top
 ### Visual Mode
 
 - `v`: Enter visual mode to highlight text.

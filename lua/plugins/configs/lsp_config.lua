@@ -1,12 +1,45 @@
-return {
-  setup = function ()
-    local lspconfig = require("lspconfig")
-    local cmp_nvim_lsp = require("cmp_nvim_lsp")
+local function lspSymbol(name, icon)
+  local hl = "DiagnosticSign" .. name
+  vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
+end
 
-    local keymap = vim.keymap
+lspSymbol("Error", "󰅙")
+lspSymbol("Info", "󰋼")
+lspSymbol("Hint", "󰌵")
+lspSymbol("Warn", "")
 
-    local opts = { noremap = true, silent = true }
-    local on_attach = function(client, bufnr)
+vim.diagnostic.config {
+  virtual_text = {
+    prefix = "",
+  },
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+}
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+  border = "single",
+})
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+  border = "single",
+  focusable = false,
+  relative = "cursor",
+})
+
+-- Borders for LspInfo winodw
+local win = require "lspconfig.ui.windows"
+local _default_opts = win.default_opts
+
+win.default_opts = function(options)
+  local opts = _default_opts(options)
+  opts.border = "single"
+  return opts
+end
+
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
+
+local capabilities = cmp_nvim_lsp.default_capabilities()
+local on_attach = function(client, bufnr)
       opts.buffer = bufnr
 
       -- set keybinds
@@ -48,65 +81,28 @@ return {
 
       opts.desc = "Restart LSP"
       keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
-    end
+end
 
-    -- used to enable autocompletion (assign to every lsp server config)
-    local capabilities = cmp_nvim_lsp.default_capabilities()
+require("lspconfig").lua_ls.setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
 
-    -- Change the Diagnostic symbols in the sign column (gutter)
-    -- (not in youtube nvim video)
-    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-    for type, icon in pairs(signs) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-    end
-
-    lspconfig.ruff_lsp.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
-
-    lspconfig.rust_analyzer.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
-
-    lspconfig.typos_lsp.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
-
-    -- configure typescript server with plugin
-    lspconfig.tsserver.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
-
-    -- configure python server
-    lspconfig.pyright.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-    })
-
-    -- configure lua server (with special settings)
-    lspconfig.lua_ls.setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = { -- custom settings for lua
-        Lua = {
-          -- make the language server recognize "vim" global
-          diagnostics = {
-            globals = { "vim" },
-          },
-          workspace = {
-            -- make language server aware of runtime files
-            library = {
-              [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-              [vim.fn.stdpath("config") .. "/lua"] = true,
-            },
-          },
-        },
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },
       },
-    })
-  end,
+      workspace = {
+        library = {
+          [vim.fn.expand "$VIMRUNTIME/lua"] = true,
+          [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
+          [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
+        },
+        maxPreload = 100000,
+        preloadFileSize = 10000,
+      },
+    },
+  },
 }
+
+return {capabilities, on_attach }
