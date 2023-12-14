@@ -5,7 +5,7 @@ local formatting_style = {
   fields = { "kind", "abbr", "menu" },
 
   format = function(_, item)
-    local icons = C.icons
+    local icons = C.icons.lsp
     local icon = icons[item.kind] or ""
 
     icon = " " .. icon .. " "
