@@ -26,6 +26,8 @@ local plugins = {
     },
     config = function ()
       require "plugins.configs.lsp_config"
+      -- config for other langs
+      require "plugins.langs.rust"
     end
   },
   -- Formatter

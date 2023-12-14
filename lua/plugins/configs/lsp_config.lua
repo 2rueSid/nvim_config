@@ -105,4 +105,4 @@ require("lspconfig").lua_ls.setup {
   },
 }
 
-return {capabilities, on_attach }
+return {capabilities=capabilities, on_attach=on_attach }
