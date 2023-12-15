@@ -9,12 +9,17 @@ lspSymbol("Hint", "󰌵")
 lspSymbol("Warn", "")
 
 vim.diagnostic.config {
-  virtual_text = {
-    prefix = "",
-  },
-  signs = true,
-  underline = true,
-  update_in_insert = false,
+    virtual_text = false,
+    signs = true,
+    update_in_insert = true,
+    underline = true,
+    severity_sort = false,
+    float = {
+        border = 'rounded',
+        source = 'always',
+        header = '',
+        prefix = '',
+    },
 }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
@@ -25,6 +30,11 @@ vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.s
   focusable = false,
   relative = "cursor",
 })
+
+vim.cmd([[
+set signcolumn=yes
+autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
+]])
 
 -- Borders for LspInfo winodw
 local win = require "lspconfig.ui.windows"
@@ -83,7 +93,10 @@ local on_attach = function(client, bufnr)
       keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
 end
 
-require("lspconfig").lua_ls.setup {
+local lspconfig = require("lspconfig")
+
+
+lspconfig.lua_ls.setup {
     on_attach = on_attach,
     capabilities = capabilities,
 

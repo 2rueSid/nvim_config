@@ -1,17 +1,18 @@
 return {
   ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "rust", "tsx", "typescript", "python", "yaml", "cpp", "go", "javascript", "toml" },
-  additional_vim_regex_highlighting = false,
-  sync_install = false,
 
   auto_install = true,
 
-  ignore_install = { },
-
   highlight = {
     enable = true,
-
-    disable = {},
-    use_languagetree = true,
+    -- use_languagetree = true,
+    additional_vim_regex_highlighting = false,
   },
   indent = { enable = true },
+  rainbow = {
+    enable = true,
+    extended_mode = true,
+    max_file_lines = nil,
+  }
 }
+

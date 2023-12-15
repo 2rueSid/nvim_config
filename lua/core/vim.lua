@@ -1,4 +1,5 @@
 vim.o.termguicolors = true
+-- show relative numbers, and current col as a absolute
 vim.wo.relativenumber = true
 vim.opt.number = true
 
@@ -18,11 +19,14 @@ autocmd("BufWritePost", {
 	command = ":FormatWrite",
 })
 
--- Linter
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-  callback = function()
-    require("lint").try_lint()
-  end,
+-- Linter when on swithing to normal mode;
+vim.api.nvim_create_autocmd({ "InsertLeave", "BufWritePost" }, {
+	callback = function()
+		local lint_status, lint = pcall(require, "lint")
+		if lint_status then
+			lint.try_lint()
+		end
+	end,
 })
 
 -- use sys clipboard

@@ -27,16 +27,12 @@ return {
     markdown = {
       require("formatter.filetypes.markdown").prettier,
     },
-    rust = {
-      require("formatter.filetypes.rust").rustfmt,
-    },
     typescript = {
       require("formatter.filetypes.typescript").prettier,
     },
     typescriptreact = {
       require("formatter.filetypes.typescriptreact").prettier,
     },
-
 
     ["*"] = {
       require("formatter.filetypes.any").remove_trailing_whitespace
