@@ -34,7 +34,7 @@ local Keybindings = {
 		go_down = {
 			key = "<C-d>",
 			cb = function()
-				vim.api.nvim_exec("execute 'normal! \\<C-d>zz'", false)
+				vim.api.nvim_exec('execute "normal! \\<C-d>zz"', false)
 			end,
 			opts = { noremap = true, silent = true },
 			desc = "Go donw and center cursor on the screen",
@@ -42,7 +42,7 @@ local Keybindings = {
 		go_up = {
 			key = "<C-u>",
 			cb = function()
-				vim.api.nvim_exec("execute 'normal! \\<C-u>zz'", false)
+				vim.api.nvim_exec('execute "normal! \\<C-u>zz"', false)
 			end,
 			opts = { noremap = true, silent = true },
 			desc = "Go up and center cursor on the screen",
@@ -123,6 +123,14 @@ local Keybindings = {
 			desc = "Save session for auto session root dir",
 		},
 	},
+  CheatSheet = {
+    open = {
+      key = "<leader>ch",
+      cb = ":lua show_cheatsheet()<CR>",
+      opts = { noremap = true, silent = true },
+      desc = "Open Cheat Sheet"
+    }
+  }
 }
 
 function Setup()

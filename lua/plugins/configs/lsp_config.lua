@@ -31,6 +31,16 @@ vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.s
   relative = "cursor",
 })
 
+vim.g.diagnostics_active = true
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        virtual_text = true,
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+      }
+    )
+
 vim.cmd([[
 set signcolumn=yes
 autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
@@ -117,5 +127,11 @@ lspconfig.lua_ls.setup {
     },
   },
 }
+
+lspconfig.pyright.setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+}
+
 
 return {capabilities=capabilities, on_attach=on_attach }

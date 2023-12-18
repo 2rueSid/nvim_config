@@ -239,6 +239,12 @@ local plugins = {
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
 	},
+	{
+  	"zeioth/garbage-day.nvim",
+  	dependencies = "neovim/nvim-lspconfig",
+  	event = "VeryLazy",
+  	opts = {}
+	},
 	-- {
 	--   "folke/which-key.nvim",
 	--   event = "VeryLazy",

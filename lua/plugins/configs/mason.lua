@@ -1,5 +1,5 @@
 return {
-  ensure_installed = { "lua-language-server", "luacheck", "ruff", "pyright", "ruff_lsp", "rust_analyzer", "tsserver", "typos_lsp", "eslint", "lua_ls", "prettier", "golangcilint","stylua","clangformat","gofmt","rustfmt",
+  ensure_installed = { "lua-language-server", "luacheck", "ruff", "pyright", "ruff_lsp", "rust_analyzer", "lua_ls", "stylua", "rustfmt",
   },
 
   ui = {
