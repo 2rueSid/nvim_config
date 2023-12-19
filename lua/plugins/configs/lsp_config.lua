@@ -1,6 +1,6 @@
 local util = require "lspconfig/util"
 local path = util.path
- 
+
 local function lspSymbol(name, icon)
   local hl = "DiagnosticSign" .. name
   vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })

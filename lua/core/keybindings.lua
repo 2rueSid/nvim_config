@@ -57,12 +57,12 @@ local Keybindings = {
 		search_str = {
 			key = "<leader>fg",
 			cb = builtin.live_grep,
-			desc = " Search for a string in your current working directory and get results live as you type, respects .gitignore. (Requires ripgrep)",
+			desc = "Search for a string in your current working directory and get results live as you type, respects .gitignore. (Requires ripgrep)",
 		},
 		search_str_cursor = {
 			key = "<leader>fs",
 			cb = builtin.grep_string,
-			desc = " Searches for the string under your cursor or selection in your current working directory",
+			desc = "Searches for the string under your cursor or selection in your current working directory",
 		},
 		open_buffers = {
 			key = "<leader>fb",
