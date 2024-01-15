@@ -33,9 +33,9 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "BufWritePost" }, {
 vim.opt.clipboard:append("unnamedplus")
 
 -- cmp
-vim.opt.completeopt = {'menuone', 'noselect', 'noinsert'}
-vim.opt.shortmess = vim.opt.shortmess + { c = true}
-vim.api.nvim_set_option('updatetime', 300)
+vim.opt.completeopt = { "menuone", "noselect", "noinsert" }
+vim.opt.shortmess = vim.opt.shortmess + { c = true }
+vim.api.nvim_set_option("updatetime", 300)
 
 -- Fixed column for diagnostics to appear
 -- Show autodiagnostic popup on cursor hover_range
@@ -45,3 +45,9 @@ vim.cmd([[
 set signcolumn=yes
 autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 ]])
+
+-- Set line wrap
+vim.opt.textwidth = 90
+vim.opt.colorcolumn = "90"
+vim.opt.wrap = true
+vim.opt.formatoptions:append('t')

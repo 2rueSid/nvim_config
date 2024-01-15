@@ -17,6 +17,13 @@ local plugins = {
 		end,
 		lazy = false,
 	},
+	{
+		"alexghergh/nvim-tmux-navigation",
+		config = function()
+			require("nvim-tmux-navigation").setup({})
+		end,
+		lazy = false,
+	},
 	-- LSP
 	{
 		"simrat39/rust-tools.nvim",
@@ -120,14 +127,13 @@ local plugins = {
 
 			auto_session.setup({
 				auto_restore_enabled = true,
-				auto_session_suppress_dirs = { "~/", "~/Dev/", "~/Downloads", "~/Documents", "~/Desktop/" },
 			})
-
-			local keymap = vim.keymap
-
-			keymap.set("n", "<leader>wr", "<cmd>SessionRestore<CR>", { desc = "Restore session for cwd" }) -- restore last workspace session for current directory
-			keymap.set("n", "<leader>ws", "<cmd>SessionSave<CR>", { desc = "Save session for auto session root dir" }) -- save workspace session for current working directory
 		end,
+		lazy = false,
+	},
+	-- Multiline
+	{
+		"mg979/vim-visual-multi",
 		lazy = false,
 	},
 	-- comments
@@ -240,10 +246,10 @@ local plugins = {
 		branch = "harpoon2",
 	},
 	{
-  	"zeioth/garbage-day.nvim",
-  	dependencies = "neovim/nvim-lspconfig",
-  	event = "VeryLazy",
-  	opts = {}
+		"zeioth/garbage-day.nvim",
+		dependencies = "neovim/nvim-lspconfig",
+		event = "VeryLazy",
+		opts = {},
 	},
 	-- {
 	--   "folke/which-key.nvim",
@@ -263,4 +269,3 @@ local lazy_opts = require("plugins.configs.lazyvim")
 lazy.setup(plugins, lazy_opts)
 
 require("harpoon").setup()
--- require("plugins.configs.cmp").setup()

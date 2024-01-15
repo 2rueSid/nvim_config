@@ -1,11 +1,14 @@
 local builtin = require("telescope.builtin")
 local harpoon = require("harpoon")
 local nvim_tree = require("nvim-tree.api")
-
+local nvim_tmux_nav = require("nvim-tmux-navigation")
 local keymap = vim.keymap
-
 local function setup_keybinding(key, mode, cb, opts)
 	assert(type(key) == "string", "Key should be set")
+
+	if not cb then
+		return
+	end
 
 	mode = mode or "n"
 	cb = cb or function() end
@@ -123,20 +126,91 @@ local Keybindings = {
 			desc = "Save session for auto session root dir",
 		},
 	},
-  CheatSheet = {
-    open = {
-      key = "<leader>ch",
-      cb = ":lua show_cheatsheet()<CR>",
-      opts = { noremap = true, silent = true },
-      desc = "Open Cheat Sheet"
-    }
-  }
+	CheatSheet = {
+		open = {
+			key = "<leader>ch",
+			cb = ":lua show_cheatsheet()<CR>",
+			opts = { noremap = true, silent = true },
+			desc = "Open Cheat Sheet",
+		},
+	},
+	Tmux = {
+		left = {
+			key = "<C-h>",
+			cb = nvim_tmux_nav.NvimTmuxNavigateLeft,
+			desc = "Switch to pane to the left",
+		},
+		down = {
+			key = "<C-j>",
+			cb = nvim_tmux_nav.NvimTmuxNavigateDown,
+			desc = "Swtich to the bottom pane",
+		},
+		up = {
+			key = "<C-k>",
+			cb = nvim_tmux_nav.NvimTmuxNavigateUp,
+			desc = "Switch to the upper pane",
+		},
+		right = {
+			key = "<C-l>",
+			cb = nvim_tmux_nav.NvimTmuxNavigateRight,
+			desc = "Switch to the right pane",
+		},
+	},
+	Sessions = {
+		restore = {
+			key = "<C-sr>",
+			cb = "<cmd>SessionRestore<CR>",
+			desc = "Restore session for cwd",
+		},
+		save = {
+			key = "<C-sa>",
+			cb = "<cmd>SessionSave<CR>",
+			desc = "Save session for cwd",
+		},
+	},
+	CMP = {
+		scroll_up = {
+			key = "<C-b>",
+			desc = "Scroll CMP window up",
+			mode = "i",
+		},
+		scroll_down = {
+			key = "<C-f>",
+			desc = "Scroll CMP window down",
+			mode = "i",
+		},
+		complete = {
+			key = "<C-c>",
+			desc = "Complete CMP",
+			mode = "i",
+		},
+		confirm = {
+			key = "<C-CR>",
+			desc = "select current cmp item",
+			mode = "i",
+		},
+		abort = {
+			key = "<C-e>",
+			desc = "Exit cmp window",
+			mode = "i",
+		},
+		hard_abort = {
+			key = "<ESC>",
+			mode = "i",
+			cb = "<cmd>lua require('cmp').abort()<CR><ESC>",
+			desc = "Close cmp on ESC",
+			opts = {
+				noremap = true,
+				silent = true,
+			},
+		},
+	},
 }
 
 function Setup()
-  local C = require("constants")
-  -- LEADER KEY
-  vim.g.mapleader = C.keys.LEADER_KEY
+	local C = require("constants")
+	-- LEADER KEY
+	vim.g.mapleader = C.keys.LEADER_KEY
 	for _, value in pairs(Keybindings) do
 		for _, table in pairs(value) do
 			setup_keybinding(table.key, table.mode or "n", table.cb, table.opts or {})
