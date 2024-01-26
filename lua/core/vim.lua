@@ -45,9 +45,3 @@ vim.cmd([[
 set signcolumn=yes
 autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 ]])
-
--- Set line wrap
-vim.opt.textwidth = 90
-vim.opt.colorcolumn = "90"
-vim.opt.wrap = true
-vim.opt.formatoptions:append('t')

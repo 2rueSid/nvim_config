@@ -251,16 +251,6 @@ local plugins = {
 		event = "VeryLazy",
 		opts = {},
 	},
-	-- {
-	--   "folke/which-key.nvim",
-	--   event = "VeryLazy",
-	--   init = function()
-	--     vim.o.timeout = true
-	--     vim.o.timeoutlen = 300
-	--   end,
-	--   opts = {},
-	--   lazy=false
-	-- }
 }
 
 -- check if lazyvim installed
