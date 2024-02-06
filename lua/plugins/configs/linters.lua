@@ -5,4 +5,5 @@ return {
 	typescript = { "eslint" },
 	javascriptreact = { "eslint" },
 	typescriptreact = { "eslint" },
+	terraform = { "tfsec", "tflint" },
 }

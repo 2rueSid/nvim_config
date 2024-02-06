@@ -37,6 +37,9 @@ return {
 		typescriptreact = {
 			require("formatter.filetypes.typescriptreact").prettier,
 		},
+		terraform = {
+			require("formatter.filetypes.terraform").terraformfmt,
+		},
 
 		["*"] = {
 			require("formatter.filetypes.any").remove_trailing_whitespace,
