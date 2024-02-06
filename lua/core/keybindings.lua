@@ -3,6 +3,7 @@ local harpoon = require("harpoon")
 local nvim_tree = require("nvim-tree.api")
 local nvim_tmux_nav = require("nvim-tmux-navigation")
 local keymap = vim.keymap
+
 local function setup_keybinding(key, mode, cb, opts)
 	assert(type(key) == "string", "Key should be set")
 
@@ -49,6 +50,10 @@ local Keybindings = {
 			end,
 			opts = { noremap = true, silent = true },
 			desc = "Go up and center cursor on the screen",
+		},
+		lsp_code_actions = {
+			key = "<leader>fa",
+			cb = "<cmd>lua vim.lsp.buf.code_action()<CR>",
 		},
 	},
 	Telescope = {
@@ -169,29 +174,35 @@ local Keybindings = {
 		},
 	},
 	CMP = {
-		scroll_up = {
-			key = "<C-b>",
-			desc = "Scroll CMP window up",
+
+		scroll_up_docs = {
+			key = "<C-[>",
+			desc = "Scroll CMP docs window up",
 			mode = "i",
 		},
-		scroll_down = {
-			key = "<C-f>",
-			desc = "Scroll CMP window down",
-			mode = "i",
-		},
-		complete = {
-			key = "<C-c>",
-			desc = "Complete CMP",
+		scroll_down_docs = {
+			key = "<C-]>",
+			desc = "Scroll CMP docs window down",
 			mode = "i",
 		},
 		confirm = {
-			key = "<C-CR>",
+			key = "<CR>",
 			desc = "select current cmp item",
 			mode = "i",
 		},
 		abort = {
 			key = "<C-e>",
 			desc = "Exit cmp window",
+			mode = "i",
+		},
+		next_item = {
+			key = "<Tab>",
+			desc = "Next cmp item",
+			mode = "i",
+		},
+		prev_item = {
+			key = "<S-Tab>",
+			desc = "Prev cmp item",
 			mode = "i",
 		},
 		hard_abort = {
@@ -203,6 +214,24 @@ local Keybindings = {
 				noremap = true,
 				silent = true,
 			},
+		},
+	},
+	Treesitter = {
+		next_br = {
+			key = "]m",
+			decs = "go to next bracket",
+		},
+		next_end_br = {
+			key = "]M",
+			desc = "go to next end bracket",
+		},
+		prev_br = {
+			key = "[m",
+			desc = "go to prev bracket",
+		},
+		prev_env_br = {
+			key = "[[",
+			desc = "go to prev end bracket",
 		},
 	},
 }
@@ -217,5 +246,4 @@ function Setup()
 		end
 	end
 end
-
 return { keybindings = Keybindings, setup = Setup }
