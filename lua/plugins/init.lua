@@ -7,7 +7,6 @@ local plugins = {
 			local config = require("plugins.configs.mason")
 			require("mason").setup(config)
 		end,
-		lazy = false,
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
@@ -15,14 +14,12 @@ local plugins = {
 			local config = require("plugins.configs.mason_lsp")
 			require("mason-lspconfig").setup(config)
 		end,
-		lazy = false,
 	},
 	{
 		"alexghergh/nvim-tmux-navigation",
 		config = function()
 			require("nvim-tmux-navigation").setup({})
 		end,
-		lazy = false,
 	},
 	-- LSP
 	{
@@ -49,6 +46,9 @@ local plugins = {
 		lazy = false,
 		dependencies = {
 			{ "antosha417/nvim-lsp-file-operations", config = true },
+			"ray-x/lsp_signature.nvim",
+			"jose-elias-alvarez/null-ls.nvim",
+			"RRethy/vim-illuminate",
 		},
 		config = function()
 			require("plugins.configs.lsp_config")
@@ -106,8 +106,7 @@ local plugins = {
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-buffer",
 			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-nvim-lsp-signature-help",
+			"L3MON4D3/LuaSnip",
 		},
 
 		opts = function()
@@ -187,6 +186,28 @@ local plugins = {
 			local tree_sitter = require("plugins.configs.treesitter")
 			require("nvim-treesitter.configs").setup(tree_sitter)
 		end,
+		dependencies = {
+			{
+				"nvim-treesitter/nvim-treesitter-textobjects",
+				init = function()
+					-- PERF: no need to load the plugin, if we only need its queries for mini.ai
+					local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter"]
+					local opts = require("lazy.core.plugin").values(plugin, "opts", false)
+					local enabled = false
+					if opts.textobjects then
+						for _, mod in ipairs({ "move", "select", "swap", "lsp_interop" }) do
+							if opts.textobjects[mod] and opts.textobjects[mod].enable then
+								enabled = true
+								break
+							end
+						end
+					end
+					if not enabled then
+						require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
+					end
+				end,
+			},
+		},
 	},
 	-- Telescope
 	{
