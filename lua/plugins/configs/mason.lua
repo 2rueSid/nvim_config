@@ -10,6 +10,8 @@ return {
 		"stylua",
 		"rustfmt",
 		"mypy",
+		"terraform-ls",
+		"tflint",
 	},
 
 	ui = {
