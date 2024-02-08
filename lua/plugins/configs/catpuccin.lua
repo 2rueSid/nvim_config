@@ -1,5 +1,5 @@
 return {
-	-- transparent_background = true,
+	transparent_background = true,
 	show_end_of_buffer = false,
 	term_colors = false,
 	no_italic = false,
@@ -10,14 +10,14 @@ return {
 		conditionals = { "italic" },
 		loops = {},
 		functions = {},
-		keywords = {},
+		keywords = { "italic" },
 		strings = {},
 		variables = {},
-		numbers = {},
+		numbers = { "bold" },
 		booleans = {},
 		properties = {},
 		types = {},
-		operators = {},
+		operators = { "bold" },
 	},
 	integrations = {
 		cmp = true,
@@ -37,5 +37,6 @@ return {
 			dim_context = false,
 			alt_background = false,
 		},
+		lsp_trouble = true,
 	},
 }
