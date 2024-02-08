@@ -12,8 +12,13 @@ lspSymbol("Info", "󰋼")
 lspSymbol("Hint", "󰌵")
 lspSymbol("Warn", "")
 
-vim.lsp.handlers["textDocument/publishDiagnostics"] =
-	vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, { virtual_text = false, update_in_insert = false })
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+	virtual_text = true,
+	signs = true,
+	underline = true,
+	update_in_insert = false,
+	severity_sort = true,
+})
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = vim.g.floating_window_border })
 vim.lsp.handlers["textDocument/formatting"] = utils.format_async
 
@@ -61,6 +66,7 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap("n", "<leader>cf", "<CMD>lua vim.lsp.buf.formatting_sync()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "]g", "<CMD>lua vim.diagnostic.goto_next()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "[g", "<CMD>lua vim.diagnostic.goto_prev()<CR>", { silent = true, noremap = true })
+	buf_set_keymap("n", "<leader>sd", "<cmd>lua vim.diagnostic.open_float()<CR>", { silent = true, noremap = true })
 end
 
 local cmp_nvim_lsp = require("cmp_nvim_lsp")

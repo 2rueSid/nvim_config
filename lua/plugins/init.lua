@@ -73,6 +73,12 @@ local plugins = {
 			require("lint").linters_by_ft = opts
 		end,
 	},
+	-- Trouble
+	{
+		"folke/trouble.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		lazy = false,
+	},
 	-- CMP
 	{
 		"hrsh7th/nvim-cmp",
