@@ -6,4 +6,5 @@ return {
 	javascriptreact = { "eslint" },
 	typescriptreact = { "eslint" },
 	terraform = { "tfsec", "tflint" },
+	yaml = { "yamllint" },
 }

@@ -42,6 +42,9 @@ return {
 		terraform = {
 			require("formatter.filetypes.terraform").terraformfmt,
 		},
+		yaml = {
+			require("formatter.filetypes.yaml").yamlfmt,
+		},
 
 		["*"] = {
 			require("formatter.filetypes.any").remove_trailing_whitespace,
