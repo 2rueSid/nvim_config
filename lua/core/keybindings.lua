@@ -21,7 +21,7 @@ end
 local Keybindings = {
 	Buildin = {
 		next_file_buffer = {
-			key = "<C-n>",
+			key = "<C-nb>",
 			cb = function()
 				vim.cmd("bnext")
 			end,
@@ -29,7 +29,7 @@ local Keybindings = {
 			desc = "Get Next file in a buffer",
 		},
 		prev_file_buffer = {
-			key = "<C-p>",
+			key = "<C-pb>",
 			cb = function()
 				vim.cmd("bprev")
 			end,
