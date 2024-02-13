@@ -250,8 +250,25 @@ local Keybindings = {
 			end,
 		},
 	},
-}
+	Refactor = {
 
+		print_var = {
+			key = "<C-P>",
+			desc = "print var",
+			cb = function()
+				require("refactoring").debug.print_var()
+			end,
+		},
+
+		clear_print = {
+			key = "<C-C>",
+			desc = "clear pritns",
+			cb = function()
+				require("refactoring").debug.cleanup({})
+			end,
+		},
+	},
+}
 function Setup()
 	local C = require("constants")
 	-- LEADER KEY
