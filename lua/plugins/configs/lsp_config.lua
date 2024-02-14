@@ -73,7 +73,7 @@ local cmp_nvim_lsp = require("cmp_nvim_lsp")
 local capabilities = cmp_nvim_lsp.default_capabilities()
 
 require("plugins.configs.lsp_configs.pyright").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
+-- require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tsserver").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
