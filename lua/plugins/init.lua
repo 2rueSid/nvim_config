@@ -299,6 +299,10 @@ local plugins = {
 			})
 		end,
 	},
+	{
+		"Exafunction/codeium.vim",
+		event = "BufEnter",
+	},
 }
 
 -- check if lazyvim installed

@@ -56,6 +56,26 @@ local Keybindings = {
 			cb = "<cmd>lua vim.lsp.buf.code_action()<CR>",
 		},
 	},
+	Codeium = {
+		accept = {
+			key = "<C-A>",
+			cb = function()
+				return vim.fn["codeium#Accept"]()
+			end,
+			mode = "i",
+			opts = { expr = true, silent = true },
+			desc = "Accept suggestion",
+		},
+		reject = {
+			key = "<C-R>",
+			cb = function()
+				return vim.fn["codeium#Clear"]()
+			end,
+			mode = "i",
+			opts = { expr = true, silent = true },
+			desc = "Reject suggestion",
+		},
+	},
 	Telescope = {
 		list_files = {
 			key = "<leader>ff",
@@ -174,17 +194,6 @@ local Keybindings = {
 		},
 	},
 	CMP = {
-
-		scroll_up_docs = {
-			key = "<C-[>",
-			desc = "Scroll CMP docs window up",
-			mode = "i",
-		},
-		scroll_down_docs = {
-			key = "<C-]>",
-			desc = "Scroll CMP docs window down",
-			mode = "i",
-		},
 		confirm = {
 			key = "<CR>",
 			desc = "select current cmp item",
@@ -251,7 +260,6 @@ local Keybindings = {
 		},
 	},
 	Refactor = {
-
 		print_var = {
 			key = "<C-P>",
 			desc = "print var",

@@ -54,3 +54,4 @@ function M.autocmd(cmd_spec)
 end
 
 return M
+
