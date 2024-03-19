@@ -46,7 +46,9 @@ return {
 		yaml = {
 			require("formatter.filetypes.yaml").yamlfmt,
 		},
-
+		proto = {
+			require("formatter.filetypes.proto").buf_format,
+		},
 		["*"] = {
 			require("formatter.filetypes.any").remove_trailing_whitespace,
 		},

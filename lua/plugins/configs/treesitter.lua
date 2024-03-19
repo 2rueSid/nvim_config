@@ -1,6 +1,7 @@
 return {
 	ensure_installed = {
 		"c",
+		"proto",
 		"lua",
 		"vim",
 		"vimdoc",
