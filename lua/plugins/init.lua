@@ -124,11 +124,6 @@ local plugins = {
 		lazy = false,
 	},
 
-	-- Multiline
-	{
-		"mg979/vim-visual-multi",
-		lazy = false,
-	},
 	-- comments
 	{
 		"numToStr/Comment.nvim",
