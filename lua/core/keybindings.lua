@@ -1,5 +1,4 @@
 local builtin = require("telescope.builtin")
-local harpoon = require("harpoon")
 local nvim_tree = require("nvim-tree.api")
 local nvim_tmux_nav = require("nvim-tmux-navigation")
 local keymap = vim.keymap
@@ -20,21 +19,6 @@ end
 
 local Keybindings = {
 	Buildin = {
-		next_file_buffer = {
-			key = "<C-nb>",
-			cb = function()
-				vim.cmd("bnext")
-			end,
-			opts = {},
-			desc = "Get Next file in a buffer",
-		},
-		prev_file_buffer = {
-			key = "<C-pb>",
-			cb = function()
-				vim.cmd("bprev")
-			end,
-			desc = "Get previous file in a buffer",
-		},
 		go_down = {
 			key = "<C-d>",
 			cb = function()
@@ -103,22 +87,6 @@ local Keybindings = {
 			desc = "Lists Function names, variables, from Treesitter!",
 		},
 	},
-	Harpoon = {
-		append = {
-			key = "<leader>a",
-			cb = function()
-				harpoon.ui.toggle_quick_menu(harpoon:list())
-			end,
-			desc = "Append file to the harpoon list",
-		},
-		list = {
-			key = "<C-e>",
-			cb = function()
-				harpoon.ui:toggle_quick_menu(harpoon:list())
-			end,
-			desc = "Toggle harppon list",
-		},
-	},
 	NTree = {
 		tree_open = {
 			key = "<leader>tt",
@@ -133,22 +101,6 @@ local Keybindings = {
 				nvim_tree.tree.close()
 			end,
 			desc = "Close file explore",
-		},
-	},
-	SessionManager = {
-		restore = {
-			key = "<leader>wr",
-			cb = function()
-				vim.cmd("SessionRestore")
-			end,
-			desc = "Restore session for cwd",
-		},
-		save_session = {
-			key = "<leader>ws",
-			cb = function()
-				vim.cmd("SessionSave")
-			end,
-			desc = "Save session for auto session root dir",
 		},
 	},
 	CheatSheet = {
@@ -179,18 +131,6 @@ local Keybindings = {
 			key = "<C-l>",
 			cb = nvim_tmux_nav.NvimTmuxNavigateRight,
 			desc = "Switch to the right pane",
-		},
-	},
-	Sessions = {
-		restore = {
-			key = "<C-sr>",
-			cb = "<cmd>SessionRestore<CR>",
-			desc = "Restore session for cwd",
-		},
-		save = {
-			key = "<C-sa>",
-			cb = "<cmd>SessionSave<CR>",
-			desc = "Save session for cwd",
 		},
 	},
 	CMP = {
@@ -256,23 +196,6 @@ local Keybindings = {
 			desc = "show lsp diagnostic for the document",
 			cb = function()
 				require("trouble").toggle("document_diagnostics")
-			end,
-		},
-	},
-	Refactor = {
-		print_var = {
-			key = "<C-P>",
-			desc = "print var",
-			cb = function()
-				require("refactoring").debug.print_var()
-			end,
-		},
-
-		clear_print = {
-			key = "<C-C>",
-			desc = "clear pritns",
-			cb = function()
-				require("refactoring").debug.cleanup({})
 			end,
 		},
 	},

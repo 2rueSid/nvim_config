@@ -124,18 +124,6 @@ local plugins = {
 		lazy = false,
 	},
 
-	-- Auto Session
-	{
-		"rmagatti/auto-session",
-		config = function()
-			local auto_session = require("auto-session")
-
-			auto_session.setup({
-				auto_restore_enabled = true,
-			})
-		end,
-		lazy = false,
-	},
 	-- Multiline
 	{
 		"mg979/vim-visual-multi",
@@ -173,6 +161,7 @@ local plugins = {
 		end,
 		lazy = false,
 	},
+	{ "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
 	-- Theme
 	{
 		"catppuccin/nvim",
@@ -269,20 +258,6 @@ local plugins = {
 		lazy = false,
 	},
 	{
-		"ThePrimeagen/harpoon",
-		branch = "harpoon2",
-	},
-	{
-		"ThePrimeagen/refactoring.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
-		},
-		config = function()
-			require("refactoring").setup()
-		end,
-	},
-	{
 		"zeioth/garbage-day.nvim",
 		dependencies = "neovim/nvim-lspconfig",
 		event = "VeryLazy",
@@ -303,11 +278,23 @@ local plugins = {
 		"Exafunction/codeium.vim",
 		event = "BufEnter",
 	},
+	{
+		"ggandor/leap.nvim",
+		dependencies = { "tpope/vim-repeat" },
+		config = function(_, opts)
+			require("leap").add_default_mappings()
+		end,
+	},
+	{
+		"nvim-focus/focus.nvim",
+		version = "*",
+		config = function()
+			require("focus").setup()
+		end,
+	},
 }
 
 -- check if lazyvim installed
 local lazy = require("boot.lazy")
 local lazy_opts = require("plugins.configs.lazyvim")
 lazy.setup(plugins, lazy_opts)
-
-require("harpoon").setup()

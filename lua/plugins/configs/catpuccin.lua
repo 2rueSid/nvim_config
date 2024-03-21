@@ -22,14 +22,12 @@ return {
 	integrations = {
 		cmp = true,
 		gitsigns = true,
-		nvimtree = true,
+		-- nvimtree = true,
 		treesitter = true,
 		illuminate = {
 			enabled = true,
 			lsp = false,
 		},
-		harpoon = true,
-		which_key = true,
 		mason = true,
 		barbecue = {
 			dim_dirname = true,

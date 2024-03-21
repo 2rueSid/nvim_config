@@ -63,7 +63,6 @@ local on_attach = function(client, bufnr)
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ce", "<CMD>LspRestart<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>cf", "<CMD>lua vim.lsp.buf.formatting_sync()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "]g", "<CMD>lua vim.diagnostic.goto_next()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "[g", "<CMD>lua vim.diagnostic.goto_prev()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>sd", "<cmd>lua vim.diagnostic.open_float()<CR>", { silent = true, noremap = true })
