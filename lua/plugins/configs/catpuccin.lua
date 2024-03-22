@@ -22,7 +22,7 @@ return {
 	integrations = {
 		cmp = true,
 		gitsigns = true,
-		-- nvimtree = true,
+		nvimtree = true,
 		treesitter = true,
 		illuminate = {
 			enabled = true,

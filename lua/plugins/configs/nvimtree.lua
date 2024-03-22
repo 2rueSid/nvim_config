@@ -1,4 +1,16 @@
 return {
+	on_attach = function(bufnr)
+		local api = require("nvim-tree.api")
+
+		local function opts(desc)
+			return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+		end
+
+		api.config.mappings.default_on_attach(bufnr)
+
+		vim.keymap.set("n", "d", api.fs.trash, opts("Move to trash"))
+		vim.keymap.set("n", "D", api.fs.remove, opts("Remove completely"))
+	end,
 	disable_netrw = false,
 	hijack_netrw = true,
 	hijack_cursor = true,
@@ -11,7 +23,10 @@ return {
 	view = {
 		adaptive_size = false,
 		side = "left",
-		width = 30,
+		width = {
+			min = 30,
+			max = 30,
+		},
 		preserve_window_proportions = true,
 	},
 	git = {
@@ -21,15 +36,31 @@ return {
 	filesystem_watchers = {
 		enable = true,
 	},
+	modified = {
+		enable = true,
+	},
+	diagnostics = {
+		enable = true,
+		show_on_dirs = true,
+		icons = {
+			hint = "",
+			info = "",
+			warning = "",
+			error = "",
+		},
+	},
 	actions = {
 		open_file = {
+			quit_on_open = true,
 			resize_window = true,
 		},
 	},
 	renderer = {
 		root_folder_label = true,
-		highlight_git = true,
-		highlight_opened_files = "none",
+		highlight_git = "all",
+		highlight_diagnostics = "all",
+		highlight_modified = "icon",
+		highlight_opened_files = "name",
 
 		indent_markers = {
 			enable = true,

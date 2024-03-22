@@ -14,11 +14,19 @@ lspSymbol("Warn", "")
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
 	virtual_text = true,
-	signs = true,
 	underline = true,
-	update_in_insert = false,
+	update_in_insert = true,
 	severity_sort = true,
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = "",
+			[vim.diagnostic.severity.WARN] = "",
+			[vim.diagnostic.severity.INFO] = "",
+			[vim.diagnostic.severity.HINT] = "󰌵",
+		},
+	},
 })
+
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = vim.g.floating_window_border })
 vim.lsp.handlers["textDocument/formatting"] = utils.format_async
 
@@ -49,23 +57,20 @@ local on_attach = function(client, bufnr)
 	if disabled_signature_lsp[client.name] == nil then
 		require("lsp_signature").on_attach({
 			bind = true,
-			hint_enable = false,
+			hint_enable = true,
 			hi_parameter = "CursorLine",
 			handler_opts = { border = "single" },
 		})
 	end
-
-	client.server_capabilities.documentFormattingProvider = false
 
 	local function buf_set_keymap(...)
 		vim.api.nvim_buf_set_keymap(bufnr, ...)
 	end
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>ce", "<CMD>LspRestart<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "]g", "<CMD>lua vim.diagnostic.goto_next()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "[g", "<CMD>lua vim.diagnostic.goto_prev()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>sd", "<cmd>lua vim.diagnostic.open_float()<CR>", { silent = true, noremap = true })
+	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
+	buf_set_keymap("n", "<leader>gd", "<CMD>lua vim.lsp.buf.definition()<CR>", { silent = true, noremap = true })
+	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 end
 
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
