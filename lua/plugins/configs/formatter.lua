@@ -49,6 +49,9 @@ return {
 		proto = {
 			require("formatter.filetypes.proto").buf_format,
 		},
+		sh = {
+			require("formatter.filetypes.sh").shfmt,
+		},
 		["*"] = {
 			require("formatter.filetypes.any").remove_trailing_whitespace,
 		},

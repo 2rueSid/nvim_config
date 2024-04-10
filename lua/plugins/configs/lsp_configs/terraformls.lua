@@ -7,6 +7,7 @@ function M.setup(on_attach)
 	require("lspconfig").terraformls.setup({
 		on_attach = on_attach,
 		flags = { debounce_text_changes = 150 },
+		cmd = { "/opt/homebrew/bin/terraform-ls", "serve" },
 		capabilities = capabilities,
 	})
 end

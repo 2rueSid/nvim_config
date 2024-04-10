@@ -8,4 +8,5 @@ return {
 	typescriptreact = { "eslint", "trivy" },
 	terraform = { "trivy", "tflint" },
 	yaml = { "yamllint", "trivy" },
+	shell = { "shellcheck" },
 }
