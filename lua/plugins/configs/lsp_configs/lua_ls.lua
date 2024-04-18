@@ -9,6 +9,11 @@ function M.setup(on_attach, cp)
 				diagnostics = {
 					globals = { "vim" },
 				},
+				hint = {
+					enable = true,
+					setType = true,
+				},
+
 				workspace = {
 					library = {
 						[vim.fn.expand("$VIMRUNTIME/lua")] = true,

@@ -7,6 +7,10 @@ function M.setup(on_attach, cp)
 		on_attach = on_attach,
 		capabilities = cp,
 		settings = {
+			schemaStore = {
+				enable = true,
+				url = "https://www.schemastore.org/api/json/catalog.json",
+			},
 			yaml = {
 				schemas = {
 					-- kubernetes = "*.yaml",
@@ -24,6 +28,11 @@ function M.setup(on_attach, cp)
 					["https://raw.githubusercontent.com/aws/serverless-application-model/main/samtranslator/schema/schema.json"] = "*.template.yaml",
 					["https://raw.githubusercontent.com/aws/aws-sam-cli/master/schema/samcli.json"] = "*.template.yaml",
 				},
+
+				format = { enabled = false },
+				validate = false,
+				completion = true,
+				hover = true,
 			},
 		},
 	})

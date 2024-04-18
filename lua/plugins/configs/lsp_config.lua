@@ -55,7 +55,7 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap("n", "<leader>gd", "<CMD>lua vim.lsp.buf.definition()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 
-	vim.lsp.inlay_hint.enable(bufnr, not vim.lsp.inlay_hint.is_enabled())
+	vim.lsp.inlay_hint.enable(0, true)
 end
 
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
