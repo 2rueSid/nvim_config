@@ -69,3 +69,9 @@ for _, plugin in pairs(disabled_built_ins) do
 end
 
 vim.g.codeium_disable_bindings = 1
+
+vim.filetype.add({
+	extension = {
+		tf = "terraform",
+	},
+})

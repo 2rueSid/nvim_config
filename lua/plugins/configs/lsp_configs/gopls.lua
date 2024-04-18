@@ -1,12 +1,29 @@
 local M = {}
 
-function M.setup(on_attach)
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities.textDocument.completion.completionItem.snippetSupport = true
+function M.setup(on_attach, cp)
+	cp.textDocument.completion.completionItem.snippetSupport = true
 
 	require("lspconfig").gopls.setup({
 		on_attach = on_attach,
-		capabilities = capabilities,
+		capabilities = cp,
+		settings = {
+			gopls = {
+				hints = {
+					assignVariableTypes = true,
+					compositeLiteralFields = true,
+					compositeLiteralTypes = true,
+					constantValues = true,
+					functionTypeParameters = true,
+					parameterNames = true,
+					rangeVariableTypes = true,
+				},
+				analyses = {
+					unusedparams = true,
+				},
+				staticcheck = true,
+				gofumpt = true,
+			},
+		},
 	})
 end
 

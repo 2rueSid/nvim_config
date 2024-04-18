@@ -24,7 +24,7 @@ local plugins = {
 	-- LSP
 	{
 		"simrat39/rust-tools.nvim",
-		lazy = false,
+		lazy = true,
 		ft = ".rs",
 		config = function()
 			local rt = require("rust-tools")
@@ -46,13 +46,14 @@ local plugins = {
 		lazy = false,
 		dependencies = {
 			{ "antosha417/nvim-lsp-file-operations", config = true },
-			"ray-x/lsp_signature.nvim",
-			"jose-elias-alvarez/null-ls.nvim",
 			"RRethy/vim-illuminate",
 		},
 		config = function()
 			require("plugins.configs.lsp_config")
 		end,
+		opts = {
+			inlay_hints = { enabled = true },
+		},
 	},
 	-- Formatter
 	{
@@ -66,7 +67,7 @@ local plugins = {
 	-- Linter
 	{
 		"mfussenegger/nvim-lint",
-		lazy = false,
+		lazy = true,
 		-- event = { "BufReadPre", "BufNewFile" },
 		config = function()
 			local opts = require("plugins.configs.linters")
@@ -251,10 +252,10 @@ local plugins = {
 			})
 		end,
 	},
-	{
-		"Exafunction/codeium.vim",
-		event = "BufEnter",
-	},
+	-- {
+	-- 	"Exafunction/codeium.vim",
+	-- 	event = "BufEnter",
+	-- },
 	{
 		"ggandor/leap.nvim",
 		dependencies = { "tpope/vim-repeat" },

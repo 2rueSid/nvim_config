@@ -1,14 +1,10 @@
 local M = {}
 
-function M.setup(on_attach)
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities.textDocument.completion.completionItem.snippetSupport = true
-
+function M.setup(on_attach, cp)
 	require("lspconfig").terraformls.setup({
 		on_attach = on_attach,
 		flags = { debounce_text_changes = 150 },
-		cmd = { "/opt/homebrew/bin/terraform-ls", "serve" },
-		capabilities = capabilities,
+		capabilities = cp,
 	})
 end
 

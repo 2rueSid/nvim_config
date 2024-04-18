@@ -15,7 +15,7 @@ return {
 		variables = {},
 		numbers = { "bold" },
 		booleans = {},
-		properties = {},
+		properties = { "italic" },
 		types = {},
 		operators = { "bold" },
 	},
@@ -26,7 +26,7 @@ return {
 		treesitter = true,
 		illuminate = {
 			enabled = true,
-			lsp = false,
+			lsp = true,
 		},
 		mason = true,
 		barbecue = {

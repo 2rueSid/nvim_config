@@ -1,7 +1,7 @@
 return {
 	go = { "golangcilint" },
-	python = { "flake8", "mypy", "trivy" },
-	-- python = { "ruff", "mypy" },
+	-- python = { "flake8", "mypy", "trivy" },
+	python = { "ruff", "mypy", "trivy" },
 	javascript = { "eslint", "trivy" },
 	typescript = { "eslint", "trivy" },
 	javascriptreact = { "eslint", "trivy" },

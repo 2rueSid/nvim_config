@@ -17,6 +17,7 @@ return {
 		"terraform",
 		"json",
 		"bash",
+		"hcl",
 	},
 
 	auto_install = true,
