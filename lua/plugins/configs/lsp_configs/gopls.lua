@@ -1,8 +1,6 @@
 local M = {}
 
 function M.setup(on_attach, cp)
-	cp.textDocument.completion.completionItem.snippetSupport = true
-
 	require("lspconfig").gopls.setup({
 		on_attach = on_attach,
 		capabilities = cp,
