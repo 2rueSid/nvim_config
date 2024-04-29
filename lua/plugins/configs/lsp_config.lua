@@ -58,6 +58,8 @@ local on_attach = function(client, bufnr)
 	if client.server_capabilities.inlayHintProvider then
 		vim.lsp.inlay_hint.enable(0, true)
 	end
+
+	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -71,7 +73,6 @@ require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.terraformls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.golangci").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)

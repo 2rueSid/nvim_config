@@ -15,9 +15,6 @@ function M.setup(on_attach, cp)
 					parameterNames = true,
 					rangeVariableTypes = true,
 				},
-				analyses = {
-					unusedparams = true,
-				},
 				staticcheck = true,
 				gofumpt = true,
 			},

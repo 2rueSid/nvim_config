@@ -1,5 +1,5 @@
 return {
-	go = { "golangcilint" },
+	go = { "golangcilint", "revive" },
 	-- python = { "flake8", "mypy", "trivy" },
 	python = { "ruff", "mypy", "trivy" },
 	javascript = { "eslint", "trivy" },
