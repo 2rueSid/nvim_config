@@ -270,6 +270,16 @@ local plugins = {
 			require("focus").setup()
 		end,
 	},
+	{
+		"onsails/lspkind.nvim",
+	},
+	{
+		"lewis6991/gitsigns.nvim",
+		init = function()
+			local conf = require("plugins.configs.gitsings")
+			require("gitsigns").setup(conf)
+		end,
+	},
 }
 
 -- check if lazyvim installed

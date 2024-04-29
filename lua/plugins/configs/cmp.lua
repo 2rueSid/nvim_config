@@ -1,19 +1,12 @@
 local cmp = require("cmp")
-local C = require("constants")
+local lspkind = require("lspkind")
 
 local formatting_style = {
-	fields = { "kind", "abbr", "menu" },
-
-	format = function(_, item)
-		local icons = C.icons.lsp
-		local icon = icons[item.kind] or ""
-
-		icon = " " .. icon .. " "
-		item.menu = "   (" .. item.kind .. ")"
-		item.kind = icon
-
-		return item
-	end,
+	format = lspkind.cmp_format({
+		mode = "symbol_text",
+		maxwidth = 50,
+		show_labelDetails = true,
+	}),
 }
 
 vim.api.nvim_set_hl(0, "CmpItemAbbrDeprecated", { bg = "NONE", strikethrough = true, fg = "#808080" })
