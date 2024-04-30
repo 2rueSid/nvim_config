@@ -75,3 +75,6 @@ vim.filetype.add({
 		tf = "terraform",
 	},
 })
+
+-- Copilot
+vim.g.copilot_no_tab_map = true

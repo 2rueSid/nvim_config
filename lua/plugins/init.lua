@@ -280,6 +280,10 @@ local plugins = {
 			require("gitsigns").setup(conf)
 		end,
 	},
+
+	{
+		"github/copilot.vim",
+	},
 }
 
 -- check if lazyvim installed

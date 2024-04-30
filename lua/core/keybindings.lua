@@ -199,7 +199,17 @@ local Keybindings = {
 			end,
 		},
 	},
+	Copilot = {
+		apply = {
+			key = "<C-w>a",
+			cb = 'copilot#Accept("\\<CR>")',
+			desc = "Copilot accepts sggestion",
+			mode = "i",
+			opts = { expr = true, silent = true, replace_keycodes = false },
+		},
+	},
 }
+
 function Setup()
 	local C = require("constants")
 	-- LEADER KEY
@@ -210,4 +220,5 @@ function Setup()
 		end
 	end
 end
+
 return { keybindings = Keybindings, setup = Setup }
