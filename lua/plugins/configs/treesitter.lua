@@ -57,12 +57,10 @@ return {
 			enable = true,
 			set_jumps = true,
 			goto_next_start = {
-				["zf"] = "@function.outer",
 				["zp"] = "@parameter.outer",
 				["zb"] = "@block.outer",
 			},
 			goto_previous_start = {
-				["zF"] = "@function.outer",
 				["zP"] = "@parameter.outer",
 				["zB"] = "@block.outer",
 			},

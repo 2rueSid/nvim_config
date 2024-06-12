@@ -43,6 +43,12 @@ au.augroup("ShowDiagnostics", {
 	},
 })
 
+function open_definition_in_vertical_split()
+	vim.cmd("vsplit") -- Create a vertical split
+	vim.cmd("wincmd l") -- Move to the new vertical split
+	vim.lsp.buf.definition() -- Call the LSP definition function
+end
+
 local on_attach = function(client, bufnr)
 	require("illuminate").on_attach(client)
 
@@ -52,11 +58,17 @@ local on_attach = function(client, bufnr)
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>gd", "<CMD>lua vim.lsp.buf.definition()<CR>", { silent = true, noremap = true })
+	buf_set_keymap(
+		"n",
+		"<leader>gd",
+		"<CMD>lua open_definition_in_vertical_split()<CR>",
+		{ silent = true, noremap = true }
+	)
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
+	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
 
 	if client.server_capabilities.inlayHintProvider then
-		vim.lsp.inlay_hint.enable(0, true)
+		vim.lsp.inlay_hint.enable(true)
 	end
 
 	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
@@ -68,7 +80,7 @@ local capabilities = cmp_nvim_lsp.default_capabilities()
 require("plugins.configs.lsp_configs.pyright").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tsserver").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
+-- require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.terraformls").setup(on_attach, capabilities)
@@ -76,3 +88,8 @@ require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
+
+local css = require("plugins.configs.lsp_configs.cssls")
+css.cssls(on_attach, capabilities)
+css.css_variables(on_attach, capabilities)
+css.cssmodules_ls(on_attach, capabilities)

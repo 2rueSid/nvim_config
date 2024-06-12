@@ -281,8 +281,15 @@ local plugins = {
 		end,
 	},
 
+	-- {
+	-- 	"github/copilot.vim",
+	-- },
+
 	{
-		"github/copilot.vim",
+		"windwp/nvim-ts-autotag",
+		init = function()
+			require("nvim-ts-autotag").setup()
+		end,
 	},
 }
 

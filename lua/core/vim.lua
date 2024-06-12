@@ -78,3 +78,5 @@ vim.filetype.add({
 
 -- Copilot
 vim.g.copilot_no_tab_map = true
+
+-- Folding

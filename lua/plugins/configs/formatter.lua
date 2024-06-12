@@ -43,14 +43,17 @@ return {
 		terraform = {
 			require("formatter.filetypes.terraform").terraformfmt,
 		},
-		yaml = {
-			require("formatter.filetypes.yaml").yamlfmt,
-		},
+		-- yaml = {
+		-- 	require("formatter.filetypes.yaml").yamlfmt,
+		-- },
 		proto = {
 			require("formatter.filetypes.proto").buf_format,
 		},
 		sh = {
 			require("formatter.filetypes.sh").shfmt,
+		},
+		css = {
+			require("formatter.filetypes.css").prettier,
 		},
 		["*"] = {
 			require("formatter.filetypes.any").remove_trailing_whitespace,

@@ -86,6 +86,16 @@ local Keybindings = {
 			cb = builtin.treesitter,
 			desc = "Lists Function names, variables, from Treesitter!",
 		},
+		lsp_word_def = {
+			key = "<leader>ld",
+			cb = builtin.lsp_definitions,
+			desc = "Goto definition of the word under the cursor",
+		},
+		quick_fix = {
+			key = "<leader>fq",
+			cb = builtin.quickfix,
+			desc = "List quickfix list",
+		},
 	},
 	NTree = {
 		tree_open = {
