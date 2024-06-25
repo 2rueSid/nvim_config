@@ -77,8 +77,42 @@ local plugins = {
 	-- Trouble
 	{
 		"folke/trouble.nvim",
+		cmd = "Trouble",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		lazy = false,
+		opts = {},
+		keys = {
+			{
+				"<leader>dw",
+				"<cmd>Trouble diagnostics toggle<cr>",
+				desc = "Diagnostics (Trouble)",
+			},
+			{
+				"<leader>dd",
+				"<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+				desc = "Buffer Diagnostics (Trouble)",
+			},
+			{
+				"<leader>dc",
+				"<cmd>Trouble symbols toggle focus=false<cr>",
+				desc = "Symbols (Trouble)",
+			},
+			{
+				"<leader>dl",
+				"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+				desc = "LSP Definitions / references / ... (Trouble)",
+			},
+			{
+				"<leader>dx",
+				"<cmd>Trouble loclist toggle<cr>",
+				desc = "Location List (Trouble)",
+			},
+			{
+				"<leader>dQ",
+				"<cmd>Trouble qflist toggle<cr>",
+				desc = "Quickfix List (Trouble)",
+			},
+		},
 	},
 	-- CMP
 	{
@@ -281,9 +315,9 @@ local plugins = {
 		end,
 	},
 
-	-- {
-	-- 	"github/copilot.vim",
-	-- },
+	{
+		"github/copilot.vim",
+	},
 
 	{
 		"windwp/nvim-ts-autotag",

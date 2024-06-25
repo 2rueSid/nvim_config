@@ -67,11 +67,11 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
 
-	if client.server_capabilities.inlayHintProvider then
-		vim.lsp.inlay_hint.enable(true)
-	end
+	-- if client.server_capabilities.inlayHintProvider then
+	-- 	vim.lsp.inlay_hint.enable(true)
+	-- end
 
-	vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+	-- vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -80,7 +80,7 @@ local capabilities = cmp_nvim_lsp.default_capabilities()
 require("plugins.configs.lsp_configs.pyright").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tsserver").setup(on_attach, capabilities)
--- require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.terraformls").setup(on_attach, capabilities)
@@ -88,6 +88,7 @@ require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.graphql").setup(on_attach, capabilities)
 
 local css = require("plugins.configs.lsp_configs.cssls")
 css.cssls(on_attach, capabilities)

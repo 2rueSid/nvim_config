@@ -197,16 +197,12 @@ local Keybindings = {
 		workspace_diagnostic = {
 			key = "<leader>dw",
 			desc = "show lsp diagnostic for the workspace",
-			cb = function()
-				require("trouble").toggle("workspace_diagnostics")
-			end,
+			cb = "<cmd>Trouble diagnostics toggle<cr>",
 		},
 		document_diagnostics = {
 			key = "<leader>dd",
 			desc = "show lsp diagnostic for the document",
-			cb = function()
-				require("trouble").toggle("document_diagnostics")
-			end,
+			cb = "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
 		},
 	},
 	Copilot = {
