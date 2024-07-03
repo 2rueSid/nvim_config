@@ -316,13 +316,16 @@ local plugins = {
 	},
 
 	{
-		"github/copilot.vim",
-	},
-
-	{
 		"windwp/nvim-ts-autotag",
 		init = function()
 			require("nvim-ts-autotag").setup()
+		end,
+	},
+
+	{
+		"norcalli/nvim-colorizer.lua",
+		setup = function()
+			require("colorizer").setup()
 		end,
 	},
 }
