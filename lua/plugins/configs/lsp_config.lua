@@ -90,6 +90,7 @@ require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.graphql").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.typos").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.nix").setup(on_attach, capabilities)
 
 local css = require("plugins.configs.lsp_configs.cssls")
 css.cssls(on_attach, capabilities)

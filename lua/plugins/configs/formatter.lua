@@ -3,6 +3,9 @@ return {
 	log_level = vim.log.levels.WARN,
 	try_node_modules = true,
 	filetype = {
+		nix = {
+			require("formatter.filetypes.nix").nixfmt,
+		},
 		lua = {
 			require("formatter.filetypes.lua").stylua,
 		},

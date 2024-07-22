@@ -17,7 +17,6 @@ return {
 		"bash-language-server",
 		"black",
 		"eslint-lsp",
-		"gofumpt",
 		"goimports",
 		"golangci-lint",
 		"gopls",
