@@ -1,6 +1,7 @@
 local plugins = {
+	-- Utils
 	"nvim-lua/plenary.nvim",
-	-- mason
+	-- Mason
 	{
 		"williamboman/mason.nvim",
 		config = function()
@@ -15,13 +16,14 @@ local plugins = {
 			require("mason-lspconfig").setup(config)
 		end,
 	},
+	-- Tmux motions
 	{
 		"alexghergh/nvim-tmux-navigation",
 		config = function()
 			require("nvim-tmux-navigation").setup({})
 		end,
 	},
-	-- LSP
+	-- Rust
 	{
 		"simrat39/rust-tools.nvim",
 		lazy = true,
@@ -41,6 +43,7 @@ local plugins = {
 			})
 		end,
 	},
+	-- LSP
 	{
 		"neovim/nvim-lspconfig",
 		lazy = false,
@@ -278,18 +281,9 @@ local plugins = {
 	{
 		"max397574/better-escape.nvim",
 		config = function()
-			require("better_escape").setup({
-				mapping = { "jk", "jj" },
-				timeout = vim.o.timeoutlen,
-				clear_empty_lines = false,
-				keys = "<Esc>",
-			})
+			require("better_escape").setup()
 		end,
 	},
-	-- {
-	-- 	"Exafunction/codeium.vim",
-	-- 	event = "BufEnter",
-	-- },
 	{
 		"ggandor/leap.nvim",
 		dependencies = { "tpope/vim-repeat" },
@@ -327,6 +321,15 @@ local plugins = {
 		setup = function()
 			require("colorizer").setup()
 		end,
+	},
+
+	{
+		"github/copilot.vim",
+	},
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+		opts = {},
 	},
 }
 

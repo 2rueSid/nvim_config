@@ -5,18 +5,23 @@ local function lspSymbol(name, icon)
 	vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
 end
 
-lspSymbol("Error", "󰅙")
-lspSymbol("Info", "󰋼")
-lspSymbol("Hint", "󰌵")
-lspSymbol("Warn", "")
+-- lspSymbol("Error", "󰅙")
+-- lspSymbol("Info", "󰋼")
+-- lspSymbol("Hint", "󰌵")
+-- lspSymbol("Warn", "")
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-	virtual_text = true,
+	virtual_text = {
+		source = true,
+		spacing = 3,
+		virt_text_pos = "right_align",
+	},
 	underline = true,
 	update_in_insert = true,
 	severity_sort = true,
 	signs = {
 		enable = true,
+		priority = 20,
 		text = {
 			[vim.diagnostic.severity.ERROR] = "",
 			[vim.diagnostic.severity.WARN] = "",
@@ -37,7 +42,7 @@ au.augroup("ShowDiagnostics", {
 			vim.diagnostic.open_float(nil, {
 				focusable = false,
 				border = vim.g.floating_window_border,
-				source = "if_many",
+				scope = "line",
 			})
 		end,
 	},
@@ -79,7 +84,7 @@ local capabilities = cmp_nvim_lsp.default_capabilities()
 
 require("plugins.configs.lsp_configs.pyright").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.tsserver").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.ts_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
@@ -88,11 +93,9 @@ require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.graphql").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.typos").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.nix").setup(on_attach, capabilities)
 
-local css = require("plugins.configs.lsp_configs.cssls")
-css.cssls(on_attach, capabilities)
-css.css_variables(on_attach, capabilities)
-css.cssmodules_ls(on_attach, capabilities)
+-- local css = require("plugins.configs.lsp_configs.cssls")
+-- css.cssls(on_attach, capabilities)
+-- css.css_variables(on_attach, capabilities)
+-- css.cssmodules_ls(on_attach, capabilities)

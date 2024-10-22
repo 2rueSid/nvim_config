@@ -3,7 +3,7 @@ return {
 		"pyright",
 		"ruff_lsp",
 		"rust_analyzer",
-		"tsserver",
+		"ts_ls",
 		"lua_ls",
 		"eslint",
 		"tflint",

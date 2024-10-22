@@ -7,8 +7,8 @@ function M.setup(on_attach, cp)
 		cmd = {
 			"tflint",
 			"--langserver",
-			"--call-module-type=all",
-			"-c ~/.tflint.hcl", -- Config file
+			"-c",
+			"~/.tflint.hcl",
 		},
 	})
 end
