@@ -88,6 +88,13 @@ setup_keybinding(
 	"<cmd>lua require('telescope.builtin').quickfix()<cr>",
 	{ noremap = true, silent = true }
 )
+-- search current buffer
+setup_keybinding(
+	"<leader>bf",
+	"n",
+	"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>",
+	{ noremap = true, silent = true }
+)
 
 -- nvim_tree
 setup_keybinding("<leader>tt", "n", "<cmd>NvimTreeToggle<CR>", { noremap = true, silent = true })
