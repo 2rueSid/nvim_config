@@ -1,37 +1,69 @@
 return {
 	ensure_installed = {
-		"lua-language-server",
-		"luacheck",
-		"ruff",
+		-- Python
 		"pyright",
-		"ruff_lsp",
+		"ruff",
+
+		-- Rust
 		"rust_analyzer",
-		"lua_ls",
-		"stylua",
-		"rustfmt",
-		"mypy",
-		"terraform-ls",
-		"tflint",
-		"autoflake",
-		"autopep8",
-		"bash-language-server",
-		"black",
-		"eslint-lsp",
-		"goimports",
-		"golangci-lint",
-		"gopls",
-		"isort",
-		"prettier",
-		"revive",
+
+		-- bash
+		"bashls",
 		"shellcheck",
 		"shfmt",
-		"trivy",
-		"typescript-language-server",
-		"yaml-language-server",
-		"yamlfix",
+
+		-- css
+		"cssls",
+		"css_variables",
+		"cssmodules_ls",
+
+		-- Docker
+		"dockerls",
+		"docker_compose_language_service",
+
+		-- js/ts
+		"ts_ls",
+		"eslint",
+		"eslint_d",
+		"prettier",
+
+		-- go
+		"gopls",
+		"golangci_lint_ls",
+		"goimports",
+		"gofumpt",
+
+		-- lua
+		"lua_ls",
+		"stylua",
+
+		-- yaml
+		"yamlls",
 		"yamlfmt",
 		"yamllint",
+		"yamlfix",
+
+		-- spellcheck
+		"cspell",
+		"typos_lsp",
+		"typos",
+
+		-- terraform
+		"tflint",
+		"terraformls",
+
+		-- other
+		"ast_grep",
+		"marksman",
+		"trivy",
+		"nil_ls",
+		"nixpkgs-fmt",
+		"sqls",
 	},
+
+	install_root_dir = vim.fn.stdpath("config") .. "/lib/mason",
+
+	-- PATH = "append",
 
 	ui = {
 		icons = {

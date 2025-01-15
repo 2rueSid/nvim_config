@@ -10,9 +10,9 @@ return {
 			require("formatter.filetypes.lua").stylua,
 		},
 		python = {
-			-- require("formatter.filetypes.python").ruff,
-			require("formatter.filetypes.python").black,
-			require("formatter.filetypes.python").isort,
+			require("formatter.filetypes.python").ruff,
+			-- require("formatter.filetypes.python").black,
+			-- require("formatter.filetypes.python").isort,
 		},
 		rust = {
 			require("formatter.filetypes.rust").rustfmt,
@@ -23,7 +23,6 @@ return {
 		go = {
 			require("formatter.filetypes.go").gofumpt,
 			require("formatter.filetypes.go").goimports,
-			-- require("formatter.filetypes.go").golines,
 		},
 		javascript = {
 			require("formatter.filetypes.javascript").prettier,
@@ -46,9 +45,9 @@ return {
 		terraform = {
 			require("formatter.filetypes.terraform").terraformfmt,
 		},
-		-- yaml = {
-		-- 	require("formatter.filetypes.yaml").yamlfmt,
-		-- },
+		yaml = {
+			require("formatter.filetypes.yaml").yamlfmt,
+		},
 		proto = {
 			require("formatter.filetypes.proto").buf_format,
 		},

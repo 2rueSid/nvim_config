@@ -1,3 +1,0 @@
-return {
-  LEADER_KEY=" "
-}

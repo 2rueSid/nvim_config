@@ -1,4 +1,4 @@
-local au = require("core.au")
+local au = require("config.au")
 
 local function lspSymbol(name, icon)
 	local hl = "DiagnosticSign" .. name
@@ -77,8 +77,9 @@ end
 local cmp_nvim_lsp = require("cmp_nvim_lsp")
 local capabilities = cmp_nvim_lsp.default_capabilities()
 
-require("plugins.configs.lsp_configs.pyright").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.ruff").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.python").pyright(on_attach, capabilities)
+require("plugins.configs.lsp_configs.python").ruff(on_attach, capabilities)
+
 require("plugins.configs.lsp_configs.ts_ls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
@@ -86,7 +87,6 @@ require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.terraformls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.bufls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
 require("plugins.configs.lsp_configs.nix").setup(on_attach, capabilities)
 

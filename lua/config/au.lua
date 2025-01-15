@@ -6,7 +6,7 @@ M._callbacks = {}
 local function lua_call(callback)
 	local callback_key = tostring(callback)
 	M._callbacks[callback_key] = callback
-	return string.format("lua require('core.au')._callbacks['%s']()", callback_key)
+	return string.format("lua require('config.au')._callbacks['%s']()", callback_key)
 end
 
 function M.augroup(group, au_specs, buffer)
@@ -54,4 +54,3 @@ function M.autocmd(cmd_spec)
 end
 
 return M
-

@@ -26,7 +26,7 @@ end
 
 local M = {}
 
-function M.setup(on_attach, capabilities)
+function M.pyright(on_attach, capabilities)
 	require("lspconfig").pyright.setup({
 		on_attach = on_attach,
 		capabilities = capabilities,
@@ -50,6 +50,13 @@ function M.setup(on_attach, capabilities)
 				-- },
 			},
 		},
+	})
+end
+
+function M.ruff(on_attach, capabilities)
+	require("lspconfig").ruff.setup({
+		on_attach = on_attach,
+		capabilities = capabilities,
 	})
 end
 

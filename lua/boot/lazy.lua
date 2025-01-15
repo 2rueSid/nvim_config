@@ -1,6 +1,4 @@
-local C = require("constants")
-
-local lazypath = C.path.LAZY_PATH
+local lazypath = vim.fn.stdpath("config") .. "/lib/lazy-pkg"
 
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({

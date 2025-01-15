@@ -10,15 +10,6 @@ vim.opt.shiftwidth = 2
 -- Use spaces instead of tabs
 vim.opt.expandtab = true
 
--- Formatter on Save
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
-augroup("__formatter__", { clear = true })
-autocmd("BufWritePost", {
-	group = "__formatter__",
-	command = ":FormatWrite",
-})
-
 -- Linter when on swithing to normal mode;
 vim.api.nvim_create_autocmd({ "InsertLeave", "BufWritePost" }, {
 	callback = function()
@@ -79,4 +70,11 @@ vim.filetype.add({
 -- Copilot
 vim.g.copilot_no_tab_map = true
 
--- Folding
+-- Formatter on Save
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+augroup("__formatter__", { clear = true })
+autocmd("BufWritePost", {
+	group = "__formatter__",
+	command = ":FormatWrite",
+})
