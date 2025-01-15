@@ -5,23 +5,18 @@ local function lspSymbol(name, icon)
 	vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
 end
 
--- lspSymbol("Error", "󰅙")
--- lspSymbol("Info", "󰋼")
--- lspSymbol("Hint", "󰌵")
--- lspSymbol("Warn", "")
+lspSymbol("Error", "󰅙")
+lspSymbol("Info", "󰋼")
+lspSymbol("Hint", "󰌵")
+lspSymbol("Warn", "")
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-	virtual_text = {
-		source = true,
-		spacing = 3,
-		virt_text_pos = "right_align",
-	},
+	virtual_text = true,
 	underline = true,
 	update_in_insert = true,
 	severity_sort = true,
 	signs = {
 		enable = true,
-		priority = 20,
 		text = {
 			[vim.diagnostic.severity.ERROR] = "",
 			[vim.diagnostic.severity.WARN] = "",
@@ -42,7 +37,7 @@ au.augroup("ShowDiagnostics", {
 			vim.diagnostic.open_float(nil, {
 				focusable = false,
 				border = vim.g.floating_window_border,
-				scope = "line",
+				source = "if_many",
 			})
 		end,
 	},

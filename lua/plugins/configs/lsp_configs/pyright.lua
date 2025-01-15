@@ -7,6 +7,12 @@ local function get_python_path(workspace)
 		return path.join(vim.env.VIRTUAL_ENV, "bin", "python")
 	end
 
+	-- Prioritieze .venv folder if it exists in the workspace.
+	local match = vim.fn.glob(path.join(workspace, ".venv"))
+	if match ~= "" then
+		return path.join(workspace, ".venv", "bin", "python")
+	end
+
 	-- Find and use virtualenv via poetry in workspace directory.
 	local match = vim.fn.glob(path.join(workspace, "poetry.lock"))
 	if match ~= "" then
@@ -27,6 +33,23 @@ function M.setup(on_attach, capabilities)
 		on_init = function(client)
 			client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
 		end,
+		settings = {
+			python = {
+				analysis = {
+					typeCheckingMode = "off",
+					autoSearchPaths = true,
+					useLibraryCodeForTypes = true,
+					diagnosticMode = "openFilesOnly",
+					autoImportCompletions = true,
+				},
+				disableOrganizeImports = true,
+				-- analysis = {
+				-- 	autoSearchPaths = true,
+				-- 	useLibraryCodeForTypes = true,
+				-- 	autoImportCompletions = true,
+				-- },
+			},
+		},
 	})
 end
 
