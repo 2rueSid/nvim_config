@@ -1,7 +1,10 @@
 local M = {}
 
-function M.setup(on_attach, cp)
+function M.setup(on_attach)
+	local capabilities = require("blink.cmp").get_lsp_capabilities()
+
 	require("lspconfig").lua_ls.setup({
+		capabilities = capabilities,
 		on_attach = on_attach,
 
 		settings = {
@@ -25,7 +28,6 @@ function M.setup(on_attach, cp)
 				},
 			},
 		},
-		capabilities = cp,
 	})
 end
 

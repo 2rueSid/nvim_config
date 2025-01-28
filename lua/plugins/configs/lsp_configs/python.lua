@@ -26,10 +26,12 @@ end
 
 local M = {}
 
-function M.pyright(on_attach, capabilities)
+function M.pyright(on_attach)
+	local capabilities = require("blink.cmp").get_lsp_capabilities()
+
 	require("lspconfig").pyright.setup({
-		on_attach = on_attach,
 		capabilities = capabilities,
+		on_attach = on_attach,
 		on_init = function(client)
 			client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
 		end,
@@ -53,7 +55,9 @@ function M.pyright(on_attach, capabilities)
 	})
 end
 
-function M.ruff(on_attach, capabilities)
+function M.ruff(on_attach)
+	local capabilities = require("blink.cmp").get_lsp_capabilities()
+
 	require("lspconfig").ruff.setup({
 		on_attach = on_attach,
 		capabilities = capabilities,

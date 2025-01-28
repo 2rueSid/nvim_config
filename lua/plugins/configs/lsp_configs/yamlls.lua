@@ -1,11 +1,14 @@
 local M = {}
 
-function M.setup(on_attach, cp)
-	cp.textDocument.completion.completionItem.snippetSupport = true
+function M.setup(on_attach)
+	local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+	capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 	require("lspconfig").yamlls.setup({
+
 		on_attach = on_attach,
-		capabilities = cp,
+		capabilities = capabilities,
 		settings = {
 			schemaStore = {
 				enable = true,

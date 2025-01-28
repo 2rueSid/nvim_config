@@ -74,24 +74,27 @@ local on_attach = function(client, bufnr)
 	-- vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
-local cmp_nvim_lsp = require("cmp_nvim_lsp")
-local capabilities = cmp_nvim_lsp.default_capabilities()
+require("plugins.configs.lsp_configs.python").pyright(on_attach)
+require("plugins.configs.lsp_configs.python").ruff(on_attach)
 
-require("plugins.configs.lsp_configs.python").pyright(on_attach, capabilities)
-require("plugins.configs.lsp_configs.python").ruff(on_attach, capabilities)
+require("plugins.configs.lsp_configs.docker").dockerls(on_attach)
+require("plugins.configs.lsp_configs.docker").docker_compose_language_service(on_attach)
 
-require("plugins.configs.lsp_configs.docker").dockerls(on_attach, capabilities)
-require("plugins.configs.lsp_configs.docker").docker_compose_language_service(on_attach, capabilities)
+require("plugins.configs.lsp_configs.js").ts_ls(on_attach)
+require("plugins.configs.lsp_configs.js").eslint(on_attach)
 
-require("plugins.configs.lsp_configs.ts_ls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.eslint").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.lua_ls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.tflint").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.terraformls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.gopls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.yamlls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.bashls").setup(on_attach, capabilities)
-require("plugins.configs.lsp_configs.nix").setup(on_attach, capabilities)
+require("plugins.configs.lsp_configs.lua_ls").setup(on_attach)
+
+require("plugins.configs.lsp_configs.terraform").tflint(on_attach)
+require("plugins.configs.lsp_configs.terraform").tfls(on_attach)
+
+require("plugins.configs.lsp_configs.gopls").setup(on_attach)
+
+require("plugins.configs.lsp_configs.yamlls").setup(on_attach)
+require("plugins.configs.lsp_configs.bashls").setup(on_attach)
+require("plugins.configs.lsp_configs.nix").setup(on_attach)
+
+require("plugins.configs.lsp_configs.typos").setup(on_attach)
 
 -- local css = require("plugins.configs.lsp_configs.cssls")
 -- css.cssls(on_attach, capabilities)

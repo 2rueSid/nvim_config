@@ -37,7 +37,7 @@ return {
 				types = {},
 			},
 			integrations = {
-				cmp = true,
+				blink_cmp = true,
 				gitsigns = true,
 				nvimtree = true,
 				treesitter = true,
@@ -70,11 +70,6 @@ return {
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		lazy = false,
 	},
-	-- Icons in the LSP completion
-	{
-		"onsails/lspkind.nvim",
-	},
-
 	-- Autofocus and autoresizing windows
 	{
 		"nvim-focus/focus.nvim",

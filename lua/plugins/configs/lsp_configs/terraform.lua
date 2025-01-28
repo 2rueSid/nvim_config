@@ -1,19 +1,26 @@
 local M = {}
 
-function M.dockerls(on_attach)
+function M.tflint(on_attach)
 	local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-	require("lspconfig").dockerls.setup({
+	require("lspconfig").tflint.setup({
 		on_attach = on_attach,
 		capabilities = capabilities,
+		cmd = {
+			"tflint",
+			"--langserver",
+			"-c",
+			"~/.tflint.hcl",
+		},
 	})
 end
 
-function M.docker_compose_language_service(on_attach)
+function M.tfls(on_attach)
 	local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-	require("lspconfig").docker_compose_language_service.setup({
+	require("lspconfig").terraformls.setup({
 		on_attach = on_attach,
+		flags = { debounce_text_changes = 150 },
 		capabilities = capabilities,
 	})
 end

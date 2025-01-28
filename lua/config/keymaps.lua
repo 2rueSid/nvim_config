@@ -107,7 +107,7 @@ setup_keybinding("<C-k>", "n", "<cmd>NvimTmuxNavigateUp<CR>", { noremap = true, 
 setup_keybinding("<C-l>", "n", "<cmd>NvimTmuxNavigateRight<CR>", { noremap = true, silent = true })
 
 -- CMP
-setup_keybinding("<ESC>", "i", "<cmd>lua require('cmp').abort()<CR><ESC>", { noremap = true, silent = true })
+-- setup_keybinding("<ESC>", "i", "<cmd>lua require('cmp').abort()<CR><ESC>", { noremap = true, silent = true })
 
 -- Trouble
 setup_keybinding("<leader>dw", "n", "<cmd>Trouble diagnostics toggle<CR>", { noremap = true, silent = true })
