@@ -142,35 +142,36 @@ return {
 			signature = { enabled = true, window = { border = "single" } },
 
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer", "ripgrep" },
-				providers = {
-					ripgrep = {
-						module = "blink-ripgrep",
-						name = "Ripgrep",
-						opts = {
-							prefix_min_len = 3,
-							context_size = 5,
-							max_filesize = "1M",
-							project_root_marker = ".git",
-							project_root_fallback = true,
-							search_casing = "--ignore-case",
-							additional_rg_options = {},
-							fallback_to_regex_highlighting = true,
-							ignore_paths = {},
-							additional_paths = {},
-							debug = false,
-						},
-						transform_items = function(_, items)
-							for _, item in ipairs(items) do
-								-- example: append a description to easily distinguish rg results
-								item.labelDetails = {
-									description = "(rg)",
-								}
-							end
-							return items
-						end,
-					},
-				},
+				default = { "lsp", "path", "snippets", "buffer" },
+				-- "ripgrep"
+				-- providers = {
+				-- 	ripgrep = {
+				-- 		module = "blink-ripgrep",
+				-- 		name = "Ripgrep",
+				-- 		opts = {
+				-- 			prefix_min_len = 3,
+				-- 			context_size = 5,
+				-- 			max_filesize = "1M",
+				-- 			project_root_marker = ".git",
+				-- 			project_root_fallback = true,
+				-- 			search_casing = "--ignore-case",
+				-- 			additional_rg_options = {},
+				-- 			fallback_to_regex_highlighting = true,
+				-- 			ignore_paths = {},
+				-- 			additional_paths = {},
+				-- 			debug = false,
+				-- 		},
+				-- 		transform_items = function(_, items)
+				-- 			for _, item in ipairs(items) do
+				-- 				-- example: append a description to easily distinguish rg results
+				-- 				item.labelDetails = {
+				-- 					description = "(rg)",
+				-- 				}
+				-- 			end
+				-- 			return items
+				-- 		end,
+				-- 	},
+				-- },
 			},
 
 			appearance = {

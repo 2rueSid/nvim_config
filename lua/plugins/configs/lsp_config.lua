@@ -1,5 +1,3 @@
-local au = require("config.au")
-
 local function lspSymbol(name, icon)
 	local hl = "DiagnosticSign" .. name
 	vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
@@ -29,20 +27,6 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagn
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
-au.augroup("ShowDiagnostics", {
-	{
-		event = "CursorHold,CursorHoldI",
-		pattern = "*",
-		callback = function()
-			vim.diagnostic.open_float(nil, {
-				focusable = false,
-				border = vim.g.floating_window_border,
-				source = "if_many",
-			})
-		end,
-	},
-})
-
 function open_definition_in_vertical_split()
 	vim.cmd("vsplit") -- Create a vertical split
 	vim.cmd("wincmd l") -- Move to the new vertical split
@@ -67,10 +51,11 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
 
+	-- Inlay Hints
 	-- if client.server_capabilities.inlayHintProvider then
 	-- 	vim.lsp.inlay_hint.enable(true)
 	-- end
-
+	--
 	-- vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
