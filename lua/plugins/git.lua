@@ -98,18 +98,4 @@ return {
 			})
 		end,
 	},
-
-	-- -- Edit and review GitHub issues and pull requests from the comfort of your favorite editor.
-	-- -- https://github.com/pwntester/octo.nvim
-	-- {
-	-- 	"pwntester/octo.nvim",
-	-- 	config = function()
-	-- 		require("octo").setup()
-	-- 	end,
-	-- 	dependencies = {
-	-- 		"nvim-lua/plenary.nvim",
-	-- 		"nvim-telescope/telescope.nvim",
-	-- 		"nvim-tree/nvim-web-devicons",
-	-- 	},
-	-- },
 }

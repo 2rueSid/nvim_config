@@ -1,11 +1,13 @@
+-- check if lazyvim is installed
+local lazy = require("boot.lazy")
+
 require("autogroups")
 require("autocmds")
 require("options")
 require("utils")
 require("keymaps")
+require("lsp")
 
--- check if lazyvim is installed
-local lazy = require("boot.lazy")
 
 lazy.setup({
 	root = vim.fn.stdpath("config") .. "/lib/plugins",
@@ -26,3 +28,4 @@ lazy.setup({
 		import = "plugins",
 	},
 })
+
