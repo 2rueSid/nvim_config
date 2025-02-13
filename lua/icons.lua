@@ -33,4 +33,11 @@ M.lsp_icons = {
 	TypeParameter = "󰬛",
 }
 
+M.diagnostic = {
+	Error = "󰅙",
+	Info = "󰋼",
+	Hint = "󰌵",
+	Warn = "",
+}
+
 return M

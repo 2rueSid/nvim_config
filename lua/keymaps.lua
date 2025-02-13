@@ -45,57 +45,6 @@ end, { noremap = true, silent = true })
 setup_keybinding("<leader>fa", "n", "<cmd>lua vim.lsp.buf.code_action()<CR>", { noremap = true, silent = true })
 setup_keybinding("<leader>ne", "n", "<cmd>lua goto_error_then_hint()<CR>", { noremap = true, silent = true })
 
--- Telescope
-setup_keybinding(
-	"<leader>ff",
-	"n",
-	"<cmd>lua require('telescope.builtin').find_files()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>fg",
-	"n",
-	"<cmd>lua require('telescope.builtin').live_grep()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>fs",
-	"n",
-	"<cmd>lua require('telescope.builtin').grep_string()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>fb",
-	"n",
-	"<cmd>lua require('telescope.builtin').buffers()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>ft",
-	"n",
-	"<cmd>lua require('telescope.builtin').treesitter()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>ld",
-	"n",
-	"<cmd>lua require('telescope.builtin').lsp_definitions()<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding(
-	"<leader>fq",
-	"n",
-	"<cmd>lua require('telescope.builtin').quickfix()<cr>",
-	{ noremap = true, silent = true }
-)
--- search current buffer
-setup_keybinding(
-	"<leader>bf",
-	"n",
-	"<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>",
-	{ noremap = true, silent = true }
-)
-
 -- nvim_tree
 setup_keybinding("<leader>tt", "n", "<cmd>NvimTreeToggle<CR>", { noremap = true, silent = true })
 setup_keybinding("<leader>tc", "n", "<cmd>NvimTreeClose<CR>", { noremap = true, silent = true })
