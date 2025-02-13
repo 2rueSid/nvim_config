@@ -16,15 +16,6 @@ return {
 		end,
 		lazy = false,
 	},
-	-- Formatter
-	{
-		"mhartington/formatter.nvim",
-		config = function()
-			local opts = require("plugins.configs.formatter")
-			require("formatter").setup(opts)
-		end,
-		lazy = false,
-	},
 	-- Linter
 	{
 		"mfussenegger/nvim-lint",

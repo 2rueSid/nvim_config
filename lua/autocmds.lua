@@ -1,4 +1,3 @@
-local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
 autocmd("InsertLeave", {
@@ -20,13 +19,6 @@ autocmd({ "InsertLeave", "BufWritePost" }, {
 			lint.try_lint()
 		end
 	end,
-})
-
--- Formatter on Save
-augroup("__formatter__", { clear = true })
-autocmd("BufWritePost", {
-	group = "__formatter__",
-	command = ":FormatWrite",
 })
 
 -- LuaSnip
