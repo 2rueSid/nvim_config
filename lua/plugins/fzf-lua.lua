@@ -83,7 +83,7 @@ return {
 					},
 				},
 				grep = {
-					header_prefix = icons.misc.search .. " ",
+					header_prefix = "",
 				},
 				helptags = {
 					actions = {
@@ -93,7 +93,7 @@ return {
 				},
 				lsp = {
 					symbols = {
-						symbol_icons = icons.symbol_kinds,
+						symbol_icons = icons.lsp_icons,
 					},
 				},
 				oldfiles = {

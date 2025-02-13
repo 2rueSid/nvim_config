@@ -96,8 +96,8 @@ local function on_attach(client, bufnr)
 			vim.cmd("wincmd j")
 		elseif num_splits == 3 then
 			-- If three splits, move to the third split and replace it
-			vim.cmd("wincmd w")
-			vim.cmd("wincmd w")
+			vim.cmd("wincmd l")
+			vim.cmd("wincmd j")
 			vim.cmd("edit")
 		end
 
@@ -120,18 +120,6 @@ local function on_attach(client, bufnr)
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
 
-	if client:supports_method(methods.textDocument_signatureHelp) then
-		local blink_window = require("blink.cmp.completion.windows.menu")
-		local blink = require("blink.cmp")
-
-		bufnr("i", "<C-k>", function()
-			if blink_window.win:is_open() then
-				blink.hide()
-			end
-
-			vim.lsp.buf.signature_help()
-		end)
-	end
 
 	if client:supports_method(methods.textDocument_documentHighlight) then
 		local under_cursor_highlights_group = vim.api.nvim_create_augroup("test/cursor_highlights", { clear = false })
@@ -218,7 +206,9 @@ function M.configure_server(server, settings)
 	capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 	require("lspconfig")[server].setup(
-		vim.tbl_deep_extend("error", { capabilities = capabilities, silent = true }, settings or {})
+
+    
+		vim.tbl_deep_extend("error", { capabilities = capabilities, silent = true, on_attach=on_attach }, settings or {})
 	)
 end
 
