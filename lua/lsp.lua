@@ -27,21 +27,25 @@ vim.diagnostic.config({
 		prefix = "",
 		spacing = 2,
 		format = function(diagnostic)
-			-- Use shorter, nicer names for some sources:
-			local special_sources = {
-				["Lua Diagnostics."] = "lua",
-				["Lua Syntax Check."] = "lua",
-			}
 
-			local message = diagnostic_icons[vim.diagnostic.severity[diagnostic.severity]]
-			if diagnostic.source then
-				message = string.format("%s %s", message, special_sources[diagnostic.source] or diagnostic.source)
-			end
-			if diagnostic.code then
-				message = string.format("%s[%s]", message, diagnostic.code)
-			end
+      local message = diagnostic.message
+      local severity = diagnostic.severity
+      local source = diagnostic.source
+      local code = diagnostic.code
 
-			return message .. " "
+
+      if diagnostic_icons[severity] then
+        message = string.format("%s %s", diagnostic_icons[severity], message)
+      end
+
+      if source then
+        message = string.format("%s [%s #%s]", message, source, code or "nil")
+      end
+
+      return message
+      
+
+
 		end,
 	},
 	float = {
