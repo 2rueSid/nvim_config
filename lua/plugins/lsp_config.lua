@@ -59,8 +59,9 @@ return {
 				},
 				pyright = {
 					on_init = function(client)
-			  		local lsp_util = require("lspconfig/util")
-						client.config.settings.python.pythonPath = utils.get_python_path(client.config.root_dir, lsp_util.path)
+						local lsp_util = require("lspconfig/util")
+						client.config.settings.python.pythonPath =
+							utils.get_python_path(client.config.root_dir, lsp_util.path)
 					end,
 					settings = {
 						python = {
@@ -81,8 +82,13 @@ return {
 					},
 				},
 				"ruff",
-				-- "pylyzer",
-				"pyright",
+				-- pylyzer = {
+				-- 	on_init = function(client)
+				-- 		local lsp_util = require("lspconfig/util")
+				-- 		client.config.settings.python.pythonPath =
+				-- 			utils.get_python_path(client.config.root_dir, lsp_util.path)
+				-- 	end,
+				-- },
 				"terraform_lsp",
 				tflint = {
 					cmd = {

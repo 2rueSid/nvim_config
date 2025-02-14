@@ -8,6 +8,7 @@ return {
 			"xzbdmw/colorful-menu.nvim",
 			{ "L3MON4D3/LuaSnip", version = "v2.*" },
 		},
+		lazy = true,
 		version = "*",
 		opts = {
 			keymap = {
@@ -90,6 +91,11 @@ return {
 			},
 
 			signature = { enabled = true, window = { border = "single" } },
+
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer" },
+				cmdline = {},
+			},
 
 			appearance = {
 				kind_icons = require("icons").lsp_icons,

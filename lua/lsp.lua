@@ -27,25 +27,20 @@ vim.diagnostic.config({
 		prefix = "",
 		spacing = 2,
 		format = function(diagnostic)
+			local message = diagnostic.message
+			local severity = diagnostic.severity
+			local source = diagnostic.source
+			local code = diagnostic.code
 
-      local message = diagnostic.message
-      local severity = diagnostic.severity
-      local source = diagnostic.source
-      local code = diagnostic.code
+			if diagnostic_icons[severity] then
+				message = string.format("%s %s", diagnostic_icons[severity], message)
+			end
 
+			if source then
+				message = string.format("%s [%s #%s]", message, source, code or "nil")
+			end
 
-      if diagnostic_icons[severity] then
-        message = string.format("%s %s", diagnostic_icons[severity], message)
-      end
-
-      if source then
-        message = string.format("%s [%s #%s]", message, source, code or "nil")
-      end
-
-      return message
-      
-
-
+			return message
 		end,
 	},
 	float = {
@@ -115,31 +110,9 @@ local function on_attach(client, bufnr)
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
-	buf_set_keymap(
-		"n",
-		"<leader>gd",
-		"<CMD>lua open_definition_smart_split()<CR>",
-		{ silent = true, noremap = true }
-	)
+	buf_set_keymap("n", "<leader>gd", "<CMD>lua open_definition_smart_split()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
-
-
-	if client:supports_method(methods.textDocument_documentHighlight) then
-		local under_cursor_highlights_group = vim.api.nvim_create_augroup("test/cursor_highlights", { clear = false })
-		vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
-			group = under_cursor_highlights_group,
-			desc = "Highlight references under the cursor",
-			buffer = bufnr,
-			callback = vim.lsp.buf.document_highlight,
-		})
-		vim.api.nvim_create_autocmd({ "CursorMoved", "InsertEnter", "BufLeave" }, {
-			group = under_cursor_highlights_group,
-			desc = "Clear highlight references",
-			buffer = bufnr,
-			callback = vim.lsp.buf.clear_references,
-		})
-	end
 
 	if client:supports_method(methods.textDocument_inlayHint) and vim.g.inlay_hints then
 		local inlay_hints_group = vim.api.nvim_create_augroup("mariasolos/toggle_inlay_hints", { clear = false })
@@ -209,11 +182,11 @@ function M.configure_server(server, settings)
 
 	capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
-	require("lspconfig")[server].setup(
-
-    
-		vim.tbl_deep_extend("error", { capabilities = capabilities, silent = true, on_attach=on_attach }, settings or {})
-	)
+	require("lspconfig")[server].setup(vim.tbl_deep_extend(
+		"error",
+		{ capabilities = capabilities, silent = true, on_attach = on_attach },
+		settings or {}
+	))
 end
 
 return M
