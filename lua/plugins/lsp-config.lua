@@ -36,7 +36,6 @@ return {
 				"eslint",
 				lua_ls = {
 					settings = {
-
 						Lua = {
 							diagnostics = {
 								globals = { "vim" },
@@ -89,7 +88,7 @@ return {
 				-- 			utils.get_python_path(client.config.root_dir, lsp_util.path)
 				-- 	end,
 				-- },
-				"terraform_lsp",
+				"terraformls",
 				tflint = {
 					cmd = {
 						"tflint",

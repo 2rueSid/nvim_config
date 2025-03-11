@@ -13,8 +13,7 @@ return {
 		opts = {
 			keymap = {
 				preset = "default",
-
-				["<Tab>"] = { "select_next", "fallback" },
+				["<C-n>"] = { "select_next", "fallback" },
 				["<S-Tab>"] = { "select_prev", "fallback" },
 				["<Esc>"] = {
 					function(cmp)
@@ -33,10 +32,13 @@ return {
 
 				["<C-h>"] = { "snippet_forward", "fallback" },
 				["<C-l>"] = { "snippet_backward", "fallback" },
+			},
 
-				cmdline = {
+			cmdline = {
+				keymap = {
 					preset = "enter",
 				},
+				sources = {},
 			},
 
 			completion = {
@@ -94,7 +96,6 @@ return {
 
 			sources = {
 				default = { "lsp", "path", "snippets", "buffer" },
-				cmdline = {},
 			},
 
 			appearance = {

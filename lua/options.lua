@@ -1,6 +1,6 @@
 vim.o.termguicolors = true
 -- show relative numbers, and current col as a absolute
-vim.wo.relativenumber = true
+-- vim.wo.relativenumber = true
 vim.opt.number = true
 
 -- Set tab width to 2 spaces
@@ -56,6 +56,3 @@ vim.filetype.add({
 		tf = "terraform",
 	},
 })
-
--- Copilot
-vim.g.copilot_no_tab_map = true

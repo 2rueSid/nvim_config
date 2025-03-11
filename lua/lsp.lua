@@ -1,9 +1,32 @@
 local diagnostic_icons = require("icons").diagnostic
+local augroups = require("autogroups")
+local utils = require("utils")
 
 local methods = vim.lsp.protocol.Methods
 
--- Disable inlay hints
-vim.g.inlay_hints = false
+-- Inlay hints
+
+-- Toggle off by default
+vim.lsp.inlay_hint.enable(false)
+
+local function enable_inlay_hints(client, bufnr)
+	if not client.server_capabilities.inlayHintProvider then
+		return
+	end
+
+	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+	if not vim.lsp.inlay_hint.is_enabled() then
+		return
+	end
+
+	-- Delay enabling inlay hints slightly
+	vim.defer_fn(function()
+		local mode = vim.api.nvim_get_mode().mode
+		vim.lsp.inlay_hint.enable((mode == "n" or mode == "v"), { bufnr = bufnr })
+	end, 500)
+end
+
+-- Inlay hints
 
 for severity, icon in pairs(diagnostic_icons) do
 	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
@@ -82,70 +105,22 @@ vim.diagnostic.handlers.virtual_text = {
 local function on_attach(client, bufnr)
 	require("illuminate").on_attach(client)
 
-	function open_definition_smart_split()
-		local num_splits = vim.fn.winnr("$")
-
-		if num_splits == 1 then
-			-- If only one split, open a vertical split and jump to it
-			vim.cmd("vsplit")
-			vim.cmd("wincmd l")
-		elseif num_splits == 2 then
-			-- If two splits, open a horizontal split and jump to it
-			vim.cmd("split")
-			vim.cmd("wincmd j")
-		elseif num_splits == 3 then
-			-- If three splits, move to the third split and replace it
-			vim.cmd("wincmd l")
-			vim.cmd("wincmd j")
-			vim.cmd("edit")
-		end
-
-		-- Open the definition in the focused window
-		vim.lsp.buf.definition()
-	end
-
 	local function buf_set_keymap(...)
 		vim.api.nvim_buf_set_keymap(bufnr, ...)
 	end
 
+	function toggle_inlay_hints()
+		enable_inlay_hints(client, bufnr)
+	end
+
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>gd", "<CMD>lua open_definition_smart_split()<CR>", { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>gd", function()
+		utils.open_definition_smart_split()
+	end, { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
-
-	if client:supports_method(methods.textDocument_inlayHint) and vim.g.inlay_hints then
-		local inlay_hints_group = vim.api.nvim_create_augroup("mariasolos/toggle_inlay_hints", { clear = false })
-
-		-- Initial inlay hint display.
-		-- Idk why but without the delay inlay hints aren't displayed at the very start.
-		vim.defer_fn(function()
-			local mode = vim.api.nvim_get_mode().mode
-			vim.lsp.inlay_hint.enable(mode == "n" or mode == "v", { bufnr = bufnr })
-		end, 500)
-
-		vim.api.nvim_create_autocmd("InsertEnter", {
-			group = inlay_hints_group,
-			desc = "Enable inlay hints",
-			buffer = bufnr,
-			callback = function()
-				if vim.g.inlay_hints then
-					vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
-				end
-			end,
-		})
-
-		vim.api.nvim_create_autocmd("InsertLeave", {
-			group = inlay_hints_group,
-			desc = "Disable inlay hints",
-			buffer = bufnr,
-			callback = function()
-				if vim.g.inlay_hints then
-					vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-				end
-			end,
-		})
-	end
+	buf_set_keymap("n", "<leader>ih", "<CMD>lua toggle_inlay_hints()<CR>", { silent = true, noremap = true })
 end
 
 local register_capability = vim.lsp.handlers[methods.client_registerCapability]
@@ -182,11 +157,13 @@ function M.configure_server(server, settings)
 
 	capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
-	require("lspconfig")[server].setup(vim.tbl_deep_extend(
-		"error",
-		{ capabilities = capabilities, silent = true, on_attach = on_attach },
-		settings or {}
-	))
+	require("lspconfig")[server].setup(
+		vim.tbl_deep_extend(
+			"error",
+			{ capabilities = capabilities, silent = true, on_attach = on_attach },
+			settings or {}
+		)
+	)
 end
 
 return M

@@ -1,4 +1,4 @@
-local icons = require("icons")
+local icons = require("icons").lsp_icons
 
 -- Picker, finder, etc.
 return {
@@ -75,7 +75,7 @@ return {
 						vertical = "up:40%",
 					},
 				},
-				defaults = { git_icons = false },
+				defaults = { git_icons = true },
 				-- Configuration for specific commands.
 				files = {
 					winopts = {
@@ -93,7 +93,7 @@ return {
 				},
 				lsp = {
 					symbols = {
-						symbol_icons = icons.lsp_icons,
+						symbol_icons = icons,
 					},
 				},
 				oldfiles = {
