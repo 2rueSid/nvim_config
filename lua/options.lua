@@ -56,3 +56,5 @@ vim.filetype.add({
 		tf = "terraform",
 	},
 })
+
+vim.o.updatetime = 3000

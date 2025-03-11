@@ -1,43 +1,58 @@
 local diagnostic_icons = require("icons").diagnostic
-local augroups = require("autogroups")
 local utils = require("utils")
+local autogroups = require("autogroups")
 
 local methods = vim.lsp.protocol.Methods
 
--- Inlay hints
+--[[ Inlay hints ]]
 
 -- Toggle off by default
 vim.lsp.inlay_hint.enable(false)
 
-local function enable_inlay_hints(client, bufnr)
+local function enable_inlay_hints(client)
 	if not client.server_capabilities.inlayHintProvider then
 		return
 	end
 
 	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-	if not vim.lsp.inlay_hint.is_enabled() then
-		return
-	end
-
-	-- Delay enabling inlay hints slightly
-	vim.defer_fn(function()
-		local mode = vim.api.nvim_get_mode().mode
-		vim.lsp.inlay_hint.enable((mode == "n" or mode == "v"), { bufnr = bufnr })
-	end, 500)
 end
 
--- Inlay hints
+--[[ END Inlay hints ]]
 
-for severity, icon in pairs(diagnostic_icons) do
-	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
-	vim.fn.sign_define(hl, { text = icon, texthl = hl })
-end
+--[[ Hover ]]
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = "rounded",
 	max_height = math.floor(vim.o.lines * 0.5),
 	max_width = math.floor(vim.o.columns * 0.4),
 })
+
+-- Display LSP reference
+vim.api.nvim_create_autocmd("ColorScheme", {
+	callback = function()
+		vim.api.nvim_set_hl(0, "LspReferenceTarget", {})
+	end,
+})
+
+-- Display documentation when cursor is hold in the position for ~3 seconds and there is symbol under cursor
+vim.api.nvim_create_autocmd("CursorHold", {
+	group = autogroups.hover_group,
+	pattern = "*",
+	callback = function()
+		local params = vim.lsp.util.make_position_params()
+		local results = vim.lsp.buf_request_sync(0, "textDocument/hover", params, 500)
+		if results and next(results) ~= nil then
+			vim.lsp.buf.hover()
+		end
+	end,
+})
+
+--[[ END Hover ]]
+
+for severity, icon in pairs(diagnostic_icons) do
+	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
+	vim.fn.sign_define(hl, { text = icon, texthl = hl })
+end
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
 	border = "rounded",
@@ -109,18 +124,14 @@ local function on_attach(client, bufnr)
 		vim.api.nvim_buf_set_keymap(bufnr, ...)
 	end
 
-	function toggle_inlay_hints()
-		enable_inlay_hints(client, bufnr)
-	end
-
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
 	vim.keymap.set("n", "<leader>gd", function()
 		utils.open_definition_smart_split()
 	end, { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>ih", "<CMD>lua toggle_inlay_hints()<CR>", { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>ih", function()
+		enable_inlay_hints(client)
+	end, { silent = true, noremap = true })
 end
 
 local register_capability = vim.lsp.handlers[methods.client_registerCapability]
