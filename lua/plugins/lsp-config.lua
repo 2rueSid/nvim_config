@@ -34,6 +34,8 @@ return {
 				},
 				"ts_ls",
 				"eslint",
+				"harper_ls",
+				-- "oxlint",
 				lua_ls = {
 					settings = {
 						Lua = {

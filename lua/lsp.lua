@@ -49,16 +49,22 @@ vim.api.nvim_create_autocmd("CursorHold", {
 
 --[[ END Hover ]]
 
-for severity, icon in pairs(diagnostic_icons) do
-	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
-	vim.fn.sign_define(hl, { text = icon, texthl = hl })
-end
+--[[ Signature ]]
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
 	border = "rounded",
 	max_height = math.floor(vim.o.lines * 0.5),
 	max_width = math.floor(vim.o.columns * 0.4),
 })
+--[[ END Signature ]]
+
+--[[  diagnostic ]]
+
+-- Left bar signs
+for severity, icon in pairs(diagnostic_icons) do
+	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
+	vim.fn.sign_define(hl, { text = icon, texthl = hl })
+end
 
 vim.diagnostic.config({
 	virtual_text = {
@@ -117,6 +123,7 @@ vim.diagnostic.handlers.virtual_text = {
 	hide = hide_handler,
 }
 
+--[[  END diagnostic ]]
 local function on_attach(client, bufnr)
 	require("illuminate").on_attach(client)
 
