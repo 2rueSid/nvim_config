@@ -23,4 +23,26 @@ M.get_python_path = function(workspace, path)
 	return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
 end
 
+M.open_definition_smart_split = function()
+	local num_splits = vim.fn.winnr("$")
+
+	if num_splits == 1 then
+		-- If only one split, open a vertical split and jump to it
+		vim.cmd("vsplit")
+		vim.cmd("wincmd l")
+	elseif num_splits == 2 then
+		-- If two splits, open a horizontal split and jump to it
+		vim.cmd("split")
+		vim.cmd("wincmd j")
+	elseif num_splits == 3 then
+		-- If three splits, move to the third split and replace it
+		vim.cmd("wincmd l")
+		vim.cmd("wincmd j")
+		vim.cmd("edit")
+	end
+
+	-- Open the definition in the focused window
+	vim.lsp.buf.definition()
+end
+
 return M

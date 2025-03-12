@@ -54,27 +54,3 @@ setup_keybinding("<C-h>", "n", "<cmd>NvimTmuxNavigateLeft<CR>", { noremap = true
 setup_keybinding("<C-j>", "n", "<cmd>NvimTmuxNavigateDown<CR>", { noremap = true, silent = true })
 setup_keybinding("<C-k>", "n", "<cmd>NvimTmuxNavigateUp<CR>", { noremap = true, silent = true })
 setup_keybinding("<C-l>", "n", "<cmd>NvimTmuxNavigateRight<CR>", { noremap = true, silent = true })
-
--- CMP
--- setup_keybinding("<ESC>", "i", "<cmd>lua require('cmp').abort()<CR><ESC>", { noremap = true, silent = true })
-
--- Trouble
-setup_keybinding("<leader>dw", "n", "<cmd>Trouble diagnostics toggle<CR>", { noremap = true, silent = true })
-setup_keybinding(
-	"<leader>dd",
-	"n",
-	"<cmd>Trouble diagnostics toggle filter.buf=0<CR>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding("<leader>dc", "n", "<cmd>Trouble symbols toggle focus=false<cr>", { noremap = true, silent = true })
-setup_keybinding(
-	"<leader>dl",
-	"n",
-	"<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-	{ noremap = true, silent = true }
-)
-setup_keybinding("<leader>dx", "n", "<cmd>Trouble loclist toggle<cr>", { noremap = true, silent = true })
-setup_keybinding("<leader>dQ", "n", "<cmd>Trouble qflist toggle<cr>", { noremap = true, silent = true })
-
--- Copilot
-setup_keybinding("<C-w>a", "i", 'copilot#Accept("\\<CR>")', { expr = true, silent = true, replace_keycodes = false })

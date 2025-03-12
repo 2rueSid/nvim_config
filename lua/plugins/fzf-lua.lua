@@ -1,4 +1,4 @@
-local icons = require("icons")
+local icons = require("icons").lsp_icons
 
 -- Picker, finder, etc.
 return {
@@ -26,15 +26,11 @@ return {
 			{ "<leader>fg", "<cmd>FzfLua live_grep_glob<cr>", desc = "Grep" },
 			{ "<leader>fg", "<cmd>FzfLua grep_visual<cr>", desc = "Grep", mode = "x" },
 			{ "<leader>fh", "<cmd>FzfLua help_tags<cr>", desc = "Help" },
-			{
-				"<leader>fr",
-				function()
-					-- Read from ShaDa to include files that were already deleted from the buffer list.
-					vim.cmd("rshada!")
-					require("fzf-lua").oldfiles()
-				end,
-				desc = "Recently opened files",
-			},
+			{ "<leader>fi", "<cmd>FzfLua lsp_implementations<cr>", desc = "Implementations" },
+			{ "<leader>ca", "<cmd>FzfLua lsp_code_actions<cr>", desc = "Code actions" },
+			{ "<leader>fp", "<cmd>FzfLua lsp_incoming_calls<cr>", desc = "Incomming calls" },
+			{ "<leader>fo", "<cmd>FzfLua lsp_outgoing_calls<cr>", desc = "Outgoing calls" },
+			{ "<leader>fr", "<cmd>FzfLua lsp_references<cr>", desc = "References" },
 			{ "z=", "<cmd>FzfLua spell_suggest<cr>", desc = "Spelling suggestions" },
 		},
 		opts = function()
@@ -75,7 +71,7 @@ return {
 						vertical = "up:40%",
 					},
 				},
-				defaults = { git_icons = false },
+				defaults = { git_icons = true },
 				-- Configuration for specific commands.
 				files = {
 					winopts = {
@@ -93,7 +89,7 @@ return {
 				},
 				lsp = {
 					symbols = {
-						symbol_icons = icons.lsp_icons,
+						symbol_icons = icons,
 					},
 				},
 				oldfiles = {

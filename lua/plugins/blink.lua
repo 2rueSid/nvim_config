@@ -8,12 +8,12 @@ return {
 			"xzbdmw/colorful-menu.nvim",
 			{ "L3MON4D3/LuaSnip", version = "v2.*" },
 		},
+		lazy = true,
 		version = "*",
 		opts = {
 			keymap = {
 				preset = "default",
-
-				["<Tab>"] = { "select_next", "fallback" },
+				["<C-n>"] = { "select_next", "fallback" },
 				["<S-Tab>"] = { "select_prev", "fallback" },
 				["<Esc>"] = {
 					function(cmp)
@@ -32,10 +32,13 @@ return {
 
 				["<C-h>"] = { "snippet_forward", "fallback" },
 				["<C-l>"] = { "snippet_backward", "fallback" },
+			},
 
-				cmdline = {
+			cmdline = {
+				keymap = {
 					preset = "enter",
 				},
+				sources = {},
 			},
 
 			completion = {
@@ -90,6 +93,10 @@ return {
 			},
 
 			signature = { enabled = true, window = { border = "single" } },
+
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer" },
+			},
 
 			appearance = {
 				kind_icons = require("icons").lsp_icons,

@@ -1,14 +1,25 @@
 local diagnostic_icons = require("icons").diagnostic
+local utils = require("utils")
+local autogroups = require("autogroups")
 
 local methods = vim.lsp.protocol.Methods
 
--- Disable inlay hints
-vim.g.inlay_hints = false
+--[[ Inlay hints ]]
 
-for severity, icon in pairs(diagnostic_icons) do
-	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
-	vim.fn.sign_define(hl, { text = icon, texthl = hl })
+-- Toggle off by default
+vim.lsp.inlay_hint.enable(false)
+
+local function enable_inlay_hints(client)
+	if not client.server_capabilities.inlayHintProvider then
+		return
+	end
+
+	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end
+
+--[[ END Inlay hints ]]
+
+--[[ Hover ]]
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = "rounded",
@@ -16,36 +27,64 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	max_width = math.floor(vim.o.columns * 0.4),
 })
 
+-- Display LSP reference
+vim.api.nvim_create_autocmd("ColorScheme", {
+	callback = function()
+		vim.api.nvim_set_hl(0, "LspReferenceTarget", {})
+	end,
+})
+
+-- Display documentation when cursor is hold in the position for ~3 seconds and there is symbol under cursor
+vim.api.nvim_create_autocmd("CursorHold", {
+	group = autogroups.hover_group,
+	pattern = "*",
+	callback = function()
+		local params = vim.lsp.util.make_position_params()
+		local results = vim.lsp.buf_request_sync(0, "textDocument/hover", params, 500)
+		if results and next(results) ~= nil then
+			vim.lsp.buf.hover()
+		end
+	end,
+})
+
+--[[ END Hover ]]
+
+--[[ Signature ]]
+
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
 	border = "rounded",
 	max_height = math.floor(vim.o.lines * 0.5),
 	max_width = math.floor(vim.o.columns * 0.4),
 })
+--[[ END Signature ]]
+
+--[[  diagnostic ]]
+
+-- Left bar signs
+for severity, icon in pairs(diagnostic_icons) do
+	local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
+	vim.fn.sign_define(hl, { text = icon, texthl = hl })
+end
 
 vim.diagnostic.config({
 	virtual_text = {
 		prefix = "",
 		spacing = 2,
 		format = function(diagnostic)
+			local message = diagnostic.message
+			local severity = diagnostic.severity
+			local source = diagnostic.source
+			local code = diagnostic.code
 
-      local message = diagnostic.message
-      local severity = diagnostic.severity
-      local source = diagnostic.source
-      local code = diagnostic.code
+			if diagnostic_icons[severity] then
+				message = string.format("%s %s", diagnostic_icons[severity], message)
+			end
 
+			if source then
+				message = string.format("%s [%s #%s]", message, source, code or "nil")
+			end
 
-      if diagnostic_icons[severity] then
-        message = string.format("%s %s", diagnostic_icons[severity], message)
-      end
-
-      if source then
-        message = string.format("%s [%s #%s]", message, source, code or "nil")
-      end
-
-      return message
-      
-
-
+			return message
 		end,
 	},
 	float = {
@@ -84,30 +123,9 @@ vim.diagnostic.handlers.virtual_text = {
 	hide = hide_handler,
 }
 
+--[[  END diagnostic ]]
 local function on_attach(client, bufnr)
 	require("illuminate").on_attach(client)
-
-	function open_definition_smart_split()
-		local num_splits = vim.fn.winnr("$")
-
-		if num_splits == 1 then
-			-- If only one split, open a vertical split and jump to it
-			vim.cmd("vsplit")
-			vim.cmd("wincmd l")
-		elseif num_splits == 2 then
-			-- If two splits, open a horizontal split and jump to it
-			vim.cmd("split")
-			vim.cmd("wincmd j")
-		elseif num_splits == 3 then
-			-- If three splits, move to the third split and replace it
-			vim.cmd("wincmd l")
-			vim.cmd("wincmd j")
-			vim.cmd("edit")
-		end
-
-		-- Open the definition in the focused window
-		vim.lsp.buf.definition()
-	end
 
 	local function buf_set_keymap(...)
 		vim.api.nvim_buf_set_keymap(bufnr, ...)
@@ -115,64 +133,12 @@ local function on_attach(client, bufnr)
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
-	buf_set_keymap(
-		"n",
-		"<leader>gd",
-		"<CMD>lua open_definition_smart_split()<CR>",
-		{ silent = true, noremap = true }
-	)
-	buf_set_keymap("n", "<leader>lc", "<CMD>lua vim.lsp.buf.incoming_calls()<CR>", { silent = true, noremap = true })
-	buf_set_keymap("n", "<leader>ca", "<CMD>lua vim.lsp.buf.code_action()<CR>", { silent = true, noremap = true })
-
-
-	if client:supports_method(methods.textDocument_documentHighlight) then
-		local under_cursor_highlights_group = vim.api.nvim_create_augroup("test/cursor_highlights", { clear = false })
-		vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
-			group = under_cursor_highlights_group,
-			desc = "Highlight references under the cursor",
-			buffer = bufnr,
-			callback = vim.lsp.buf.document_highlight,
-		})
-		vim.api.nvim_create_autocmd({ "CursorMoved", "InsertEnter", "BufLeave" }, {
-			group = under_cursor_highlights_group,
-			desc = "Clear highlight references",
-			buffer = bufnr,
-			callback = vim.lsp.buf.clear_references,
-		})
-	end
-
-	if client:supports_method(methods.textDocument_inlayHint) and vim.g.inlay_hints then
-		local inlay_hints_group = vim.api.nvim_create_augroup("mariasolos/toggle_inlay_hints", { clear = false })
-
-		-- Initial inlay hint display.
-		-- Idk why but without the delay inlay hints aren't displayed at the very start.
-		vim.defer_fn(function()
-			local mode = vim.api.nvim_get_mode().mode
-			vim.lsp.inlay_hint.enable(mode == "n" or mode == "v", { bufnr = bufnr })
-		end, 500)
-
-		vim.api.nvim_create_autocmd("InsertEnter", {
-			group = inlay_hints_group,
-			desc = "Enable inlay hints",
-			buffer = bufnr,
-			callback = function()
-				if vim.g.inlay_hints then
-					vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
-				end
-			end,
-		})
-
-		vim.api.nvim_create_autocmd("InsertLeave", {
-			group = inlay_hints_group,
-			desc = "Disable inlay hints",
-			buffer = bufnr,
-			callback = function()
-				if vim.g.inlay_hints then
-					vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-				end
-			end,
-		})
-	end
+	vim.keymap.set("n", "<leader>gd", function()
+		utils.open_definition_smart_split()
+	end, { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>ih", function()
+		enable_inlay_hints(client)
+	end, { silent = true, noremap = true })
 end
 
 local register_capability = vim.lsp.handlers[methods.client_registerCapability]
@@ -210,9 +176,11 @@ function M.configure_server(server, settings)
 	capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 	require("lspconfig")[server].setup(
-
-    
-		vim.tbl_deep_extend("error", { capabilities = capabilities, silent = true, on_attach=on_attach }, settings or {})
+		vim.tbl_deep_extend(
+			"error",
+			{ capabilities = capabilities, silent = true, on_attach = on_attach },
+			settings or {}
+		)
 	)
 end
 
