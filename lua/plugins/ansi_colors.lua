@@ -1,0 +1,4 @@
+return {
+	"Makaze/AnsiEsc",
+	version = "*",
+}

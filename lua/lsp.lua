@@ -11,10 +11,14 @@ vim.lsp.inlay_hint.enable(false)
 
 local function enable_inlay_hints(client)
 	if not client.server_capabilities.inlayHintProvider then
+		print("Inlay hints not supported for this server ", client.name)
 		return
 	end
 
+	local is_enabled = vim.lsp.inlay_hint.is_enabled() and "disabled" or "enabled"
+
 	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+	print("Inlay hints  ", is_enabled, " for server - ", client.name)
 end
 
 --[[ END Inlay hints ]]
@@ -35,17 +39,32 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 
 -- Display documentation when cursor is hold in the position for ~3 seconds and there is symbol under cursor
-vim.api.nvim_create_autocmd("CursorHold", {
-	group = autogroups.hover_group,
-	pattern = "*",
-	callback = function()
-		local params = vim.lsp.util.make_position_params()
-		local results = vim.lsp.buf_request_sync(0, "textDocument/hover", params, 500)
-		if results and next(results) ~= nil then
-			vim.lsp.buf.hover()
-		end
-	end,
-})
+local hover_autocmd_enabled = false
+
+local function toggle_hover_autocmd()
+	hover_autocmd_enabled = not hover_autocmd_enabled
+
+	if hover_autocmd_enabled then
+		-- Autocmd is being enabled:
+		vim.api.nvim_create_autocmd("CursorHold", {
+			group = autogroups.hover_group,
+			pattern = { "*.lua", "*.py", "*.go", "*.js", "*.ts", "*.tsx" },
+			callback = function()
+				local params = vim.lsp.util.make_position_params()
+				local results = vim.lsp.buf_request_sync(0, "textDocument/hover", params, 500)
+				if results and next(results) ~= nil then
+					vim.lsp.buf.hover()
+				end
+			end,
+			desc = "Auto-trigger hover when cursor is held in place.",
+		})
+		print("Hover autocmd ENABLED.")
+	else
+		-- Autocmd is being disabled:
+		vim.api.nvim_clear_autocmds({ group = autogroups.hover_group })
+		print("Hover autocmd DISABLED.")
+	end
+end
 
 --[[ END Hover ]]
 
@@ -139,6 +158,7 @@ local function on_attach(client, bufnr)
 	vim.keymap.set("n", "<leader>ih", function()
 		enable_inlay_hints(client)
 	end, { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>hh", toggle_hover_autocmd, { silent = true, noremap = true })
 end
 
 local register_capability = vim.lsp.handlers[methods.client_registerCapability]

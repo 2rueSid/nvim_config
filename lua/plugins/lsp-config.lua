@@ -34,7 +34,6 @@ return {
 				},
 				"ts_ls",
 				"eslint",
-				"harper_ls",
 				-- "oxlint",
 				lua_ls = {
 					settings = {
@@ -54,6 +53,12 @@ return {
 								},
 								maxPreload = 100000,
 								preloadFileSize = 10000,
+							},
+							inlayHints = {
+								enable = true,
+								showParameterNames = true,
+								parameterHintsPrefix = "<- ",
+								otherHintsPrefix = "=> ",
 							},
 						},
 					},
@@ -98,6 +103,28 @@ return {
 					},
 				},
 				"typos_lsp",
+				rust_analyzer = {
+					settings = {
+						["rust-analyzer"] = {
+							diagnostics = {
+								enable = true,
+							},
+							cargo = {
+								features = "all",
+							},
+							completion = {
+								fullFunctionSignatures = {
+									enable = true,
+								},
+							},
+							imports = {
+								granularity = {
+									enforce = true,
+								},
+							},
+						},
+					},
+				},
 				yamlls = {
 					settings = {
 						yaml = {
