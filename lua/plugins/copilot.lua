@@ -15,6 +15,8 @@ return {
 			filetypes = {
 				yaml = true,
 				markdown = true,
+				rs = false,
+				rust = false,
 			},
 			panel = {
 				enabled = true,

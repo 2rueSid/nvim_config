@@ -4,5 +4,6 @@ local M = {}
 
 M.inlay_hints_group = augroup("InlayHintsGroup", { clear = true })
 M.hover_group = augroup("HoverGroup", { clear = true })
+M.diagnostic_group = augroup("DiagnosticsGroup", { clear = true })
 
 return M

@@ -86,9 +86,10 @@ for severity, icon in pairs(diagnostic_icons) do
 end
 
 vim.diagnostic.config({
-	virtual_text = {
-		prefix = "",
-		spacing = 2,
+	virtual_text = false,
+	virtual_lines = {
+		spacing = 4,
+		only_current_line = false,
 		format = function(diagnostic)
 			local message = diagnostic.message
 			local severity = diagnostic.severity
@@ -128,6 +129,74 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
+local show_diagnostics = false
+
+function toggle_diagnostics()
+	show_diagnostics = not show_diagnostics
+
+	if show_diagnostics then
+		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+			group = autogroups.diagnostic_group,
+			callback = function()
+				local bufnr = vim.api.nvim_get_current_buf()
+
+				-- Check if this buffer has an LSP client attached
+				local clients = vim.lsp.get_clients({ bufnr = bufnr })
+				if not clients or #clients == 0 then
+					return
+				end
+
+				local has_diagnostic = false
+				for _, client in ipairs(clients) do
+					if client.server_capabilities.diagnosticProvider then
+						has_diagnostic = true
+						break
+					end
+				end
+
+				if not has_diagnostic then
+					return
+				end
+
+				-- Check if there's a diagnostic on the current line
+				local line = vim.api.nvim_win_get_cursor(0)[1] - 1
+				local diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
+
+				if #diagnostics > 0 then
+					vim.diagnostic.open_float(nil, { focus = false, scope = "line" })
+				end
+			end,
+			desc = "Show diagnostics in floating window only if available on current line",
+		})
+		print("Diagnostics enabled")
+	else
+		vim.api.nvim_clear_autocmds({ group = autogroups.diagnostic_group })
+		print("Diagnostics disabled")
+	end
+end
+
+local function copy_diagnostics(bufnr)
+	-- Check if there's a diagnostic on the current line
+	local line = vim.api.nvim_win_get_cursor(0)[1] - 1
+	local diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
+
+	if #diagnostics > 0 then
+		local messages = {}
+		for _, diagnostic in ipairs(diagnostics) do
+			local message =
+				string.format("%s [%s #%s]", diagnostic.message, diagnostic.source, diagnostic.code or "nil")
+			table.insert(messages, message)
+		end
+
+		-- Join the messages with newlines and copy to clipboard
+		local joined_messages = table.concat(messages, "\n")
+		vim.fn.setreg("+", joined_messages)
+		print("Copied diagnostics to clipboard")
+	else
+		print("No diagnostics found on the current line.")
+	end
+end
+
 -- Override the virtual text diagnostic handler so that the most severe diagnostic is shown first.
 local show_handler = vim.diagnostic.handlers.virtual_text.show
 assert(show_handler)
@@ -152,6 +221,7 @@ local function on_attach(client, bufnr)
 
 	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>dc", copy_diagnostics, { buffer = bufnr, desc = "Copy diagnostics to clipboard" })
 	vim.keymap.set("n", "<leader>gd", function()
 		utils.open_definition_smart_split()
 	end, { silent = true, noremap = true })
@@ -159,6 +229,7 @@ local function on_attach(client, bufnr)
 		enable_inlay_hints(client)
 	end, { silent = true, noremap = true })
 	vim.keymap.set("n", "<leader>hh", toggle_hover_autocmd, { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>sd", toggle_diagnostics, { silent = true, noremap = true })
 end
 
 local register_capability = vim.lsp.handlers[methods.client_registerCapability]

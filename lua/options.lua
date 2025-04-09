@@ -57,4 +57,4 @@ vim.filetype.add({
 	},
 })
 
-vim.o.updatetime = 3000
+vim.o.updatetime = 250
