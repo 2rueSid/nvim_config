@@ -56,7 +56,7 @@ handlers.lua = function()
 
 	vim.notify("Lua Handler: node type: " .. node_type .. ", text: " .. text, vim.log.levels.INFO)
 end
--- Placeholder for Python
+
 handlers.python = function()
 	vim.notify("Python handler not yet implemented.", vim.log.levels.INFO)
 end
