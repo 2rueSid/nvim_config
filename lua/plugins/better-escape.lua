@@ -1,5 +1,4 @@
 return {
-
 	-- jj to escape
 	"max397574/better-escape.nvim",
 	config = function()

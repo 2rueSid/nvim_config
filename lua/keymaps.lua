@@ -63,3 +63,7 @@ setup_keybinding(
 vim.keymap.set("n", "<leader>dd", function()
 	reload_debug_logger().log_variable()
 end, { noremap = true, silent = true })
+
+vim.keymap.set("n", "<leader>rn", function()
+	return ":IncRename " .. vim.fn.expand("<cword>")
+end, { expr = true })

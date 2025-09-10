@@ -1,87 +1,100 @@
+-- Highlight, edit, and navigate code.
 return {
 	{
-		"nvim-treesitter/nvim-treesitter-context",
-		opts = { enable = true },
-	},
-	{
 		"nvim-treesitter/nvim-treesitter",
-		config = function()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = {
-					"c",
-					"proto",
-					"lua",
-					"vim",
-					"vimdoc",
-					"query",
-					"rust",
-					"tsx",
-					"typescript",
-					"python",
-					"yaml",
-					"go",
-					"javascript",
-					"toml",
-					"terraform",
-					"json",
-					"bash",
-					"hcl",
-				},
-
-				auto_install = true,
-
-				highlight = {
-					enable = true,
-					use_languagetree = true,
-					additional_vim_regex_highlighting = false,
-				},
-				indent = { enable = true },
-				rainbow = {
-					enable = true,
-					extended_mode = true,
-					max_file_lines = nil,
-				},
-				textobjects = {
-					select = {
-						enable = true,
-						lookahead = true,
-						keymaps = {
-							["af"] = "@function.outer",
-							["if"] = "@function.inner",
-							["ap"] = "@parameter.outer",
-							["ip"] = "@parameter.inner",
-							["ai"] = "@conditional.outer",
-							["ii"] = "@conditional.inner",
-						},
-					},
-					swap = {
-						enable = true,
-						swap_next = { ["]a"] = "@parameter.inner" },
-						swap_previous = { ["[a"] = "@parameter.inner" },
-					},
-					move = {
-						enable = true,
-						set_jumps = true,
-						goto_next_start = {
-							["zp"] = "@parameter.outer",
-							["zb"] = "@block.outer",
-						},
-						goto_previous_start = {
-							["zP"] = "@parameter.outer",
-							["zB"] = "@block.outer",
-						},
-						goto_previous_end = {},
-						goto_next_end = {},
-						goto_next = {},
-						goto_previous = {},
-					},
-				},
-			})
-		end,
 		dependencies = {
 			{
-				"nvim-treesitter/nvim-treesitter-textobjects",
+				"nvim-treesitter/nvim-treesitter-context",
+				opts = {
+					-- Avoid the sticky context from growing a lot.
+					max_lines = 3,
+					-- Match the context lines to the source code.
+					multiline_threshold = 1,
+					-- Disable it when the window is too small.
+					min_window_height = 20,
+				},
+				keys = {
+					{
+						"[c",
+						function()
+							-- Jump to previous change when in diffview.
+							if vim.wo.diff then
+								return "[c"
+							else
+								vim.schedule(function()
+									require("treesitter-context").go_to_context()
+								end)
+								return "<Ignore>"
+							end
+						end,
+						desc = "Jump to upper context",
+						expr = true,
+					},
+				},
 			},
 		},
+		version = false,
+		build = ":TSUpdate",
+		opts = {
+			ensure_installed = {
+				"bash",
+				"fish",
+				"gitcommit",
+				"go",
+				"graphql",
+				"html",
+				"javascript",
+				"json",
+				"json5",
+				"jsonc",
+				"lua",
+				"markdown",
+				"markdown_inline",
+				"python",
+				"rasi",
+				"regex",
+				"rust",
+				"scss",
+				"toml",
+				"tsx",
+				"typescript",
+				"vim",
+				"vimdoc",
+				"yaml",
+				"terraform",
+				"hcl",
+			},
+			highlight = { enable = true },
+			incremental_selection = {
+				enable = true,
+				keymaps = {
+					init_selection = "<cr>",
+					node_incremental = "<cr>",
+					scope_incremental = false,
+					node_decremental = "<bs>",
+				},
+			},
+			indent = {
+				enable = true,
+				-- Treesitter unindents Yaml lists for some reason.
+				disable = { "yaml" },
+			},
+		},
+		config = function(_, opts)
+			local toggle_inc_selection_group =
+				vim.api.nvim_create_augroup("mariasolos/toggle_inc_selection", { clear = true })
+			vim.api.nvim_create_autocmd("CmdwinEnter", {
+				desc = "Disable incremental selection when entering the cmdline window",
+				group = toggle_inc_selection_group,
+				command = "TSBufDisable incremental_selection",
+			})
+			vim.api.nvim_create_autocmd("CmdwinLeave", {
+				desc = "Enable incremental selection when leaving the cmdline window",
+				group = toggle_inc_selection_group,
+				command = "TSBufEnable incremental_selection",
+			})
+
+			require("nvim-treesitter.configs").setup(opts)
+		end,
 	},
 }

@@ -86,27 +86,29 @@ for severity, icon in pairs(diagnostic_icons) do
 end
 
 vim.diagnostic.config({
-	virtual_text = false,
-	virtual_lines = {
-		spacing = 4,
-		only_current_line = false,
-		format = function(diagnostic)
-			local message = diagnostic.message
-			local severity = diagnostic.severity
-			local source = diagnostic.source
-			local code = diagnostic.code
-
-			if diagnostic_icons[severity] then
-				message = string.format("%s %s", diagnostic_icons[severity], message)
-			end
-
-			if source then
-				message = string.format("%s [%s #%s]", message, source, code or "nil")
-			end
-
-			return message
-		end,
-	},
+	virtual_text = true,
+	virtual_lines = false,
+	-- virtual_lines = {
+	-- 	spacing = 4,
+	-- 	only_current_line = false,
+	-- 	current_line = true,
+	-- 	format = function(diagnostic)
+	-- 		local message = diagnostic.message
+	-- 		local severity = diagnostic.severity
+	-- 		local source = diagnostic.source
+	-- 		local code = diagnostic.code
+	--
+	-- 		if diagnostic_icons[severity] then
+	-- 			message = string.format("%s %s", diagnostic_icons[severity], message)
+	-- 		end
+	--
+	-- 		if source then
+	-- 			message = string.format("%s [%s #%s]", message, source, code or "nil")
+	-- 		end
+	--
+	-- 		return message
+	-- 	end,
+	-- },
 	float = {
 		border = "rounded",
 		source = "if_many",
@@ -124,7 +126,7 @@ vim.diagnostic.config({
 		[vim.diagnostic.severity.INFO] = diagnostic_icons[vim.diagnostic.severity.INFO],
 		[vim.diagnostic.severity.HINT] = diagnostic_icons[vim.diagnostic.severity.HINT],
 	},
-	underline = true,
+	underline = false,
 	update_in_insert = true,
 	severity_sort = true,
 })
@@ -219,7 +221,7 @@ local function on_attach(client, bufnr)
 		vim.api.nvim_buf_set_keymap(bufnr, ...)
 	end
 
-	buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
+	-- buf_set_keymap("n", "<leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>", { silent = true, noremap = true })
 	buf_set_keymap("n", "<leader>i", "<CMD>lua vim.lsp.buf.hover()<CR>", { silent = true, noremap = true })
 	vim.keymap.set("n", "<leader>dc", copy_diagnostics, { buffer = bufnr, desc = "Copy diagnostics to clipboard" })
 	vim.keymap.set("n", "<leader>gd", function()
@@ -258,21 +260,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
-local M = {}
-
-function M.configure_server(server, settings)
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities = vim.tbl_extend("force", capabilities, require("lsp-file-operations").default_capabilities())
-
-	capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
-
-	require("lspconfig")[server].setup(
-		vim.tbl_deep_extend(
-			"error",
-			{ capabilities = capabilities, silent = true, on_attach = on_attach },
-			settings or {}
-		)
-	)
-end
+-- Set up LSP servers.
+vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile" }, {
+	once = true,
+	callback = function()
+		local server_configs = vim.iter(vim.api.nvim_get_runtime_file("lsp_configs/*.lua", true))
+			:map(function(file)
+				return vim.fn.fnamemodify(file, ":t:r")
+			end)
+			:totable()
+		vim.lsp.enable(server_configs)
+	end,
+})
 
 return M

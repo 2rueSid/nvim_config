@@ -16,11 +16,24 @@ return {
 					["vim.lsp.util.stylize_markdown"] = true,
 				},
 			},
+
 			presets = {
-				bottom_search = false, -- use a classic bottom cmdline for search
-				command_palette = false, -- position the cmdline and popupmenu together
+				bottom_search = true, -- use a classic bottom cmdline for search
+				command_palette = true, -- position the cmdline and popupmenu together
 				long_message_to_split = true, -- long messages will be sent to a split
 				lsp_doc_border = true, -- add a border to hover docs and signature help
+				inc_rename = true,
+			},
+
+			routes = {
+				{
+					filter = {
+						event = "msg_show",
+						kind = "",
+						find = "written",
+					},
+					opts = { skip = true },
+				},
 			},
 		})
 	end,
