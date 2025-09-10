@@ -54,3 +54,16 @@ setup_keybinding("<C-h>", "n", "<cmd>NvimTmuxNavigateLeft<CR>", { noremap = true
 setup_keybinding("<C-j>", "n", "<cmd>NvimTmuxNavigateDown<CR>", { noremap = true, silent = true })
 setup_keybinding("<C-k>", "n", "<cmd>NvimTmuxNavigateUp<CR>", { noremap = true, silent = true })
 setup_keybinding("<C-l>", "n", "<cmd>NvimTmuxNavigateRight<CR>", { noremap = true, silent = true })
+setup_keybinding(
+	"<leader>dg",
+	"n",
+	"<cmd>lua require('debug_logger').log_variable()<CR>",
+	{ noremap = true, silent = true }
+)
+vim.keymap.set("n", "<leader>dd", function()
+	reload_debug_logger().log_variable()
+end, { noremap = true, silent = true })
+
+vim.keymap.set("n", "<leader>rn", function()
+	return ":IncRename " .. vim.fn.expand("<cword>")
+end, { expr = true })

@@ -11,6 +11,7 @@ return {
 
 				-- python = { "pylint", "mypy", "trivy", "cspell", "autoflake", "sonarlint-language-server" },
 				python = { "ruff", "trivy", "cspell" },
+				rust = { "clippy", "cspell" },
 				javascript = { "eslint", "trivy", "cspell" },
 				typescript = { "eslint", "trivy", "cspell" },
 				javascriptreact = { "eslint", "trivy", "cspell" },

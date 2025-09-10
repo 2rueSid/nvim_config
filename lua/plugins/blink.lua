@@ -10,6 +10,11 @@ return {
 		},
 		lazy = true,
 		version = "*",
+		config = function(_, opts)
+			require("blink.cmp").setup(opts)
+
+			vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities(nil, true) })
+		end,
 		opts = {
 			keymap = {
 				preset = "default",
@@ -84,18 +89,15 @@ return {
 				},
 
 				list = {
-					selection = {
-						preselect = false,
-						auto_insert = true,
-					},
-					max_items = 25,
+					selection = { preselect = false, auto_insert = true },
+					max_items = 35,
 				},
 			},
 
 			signature = { enabled = true, window = { border = "single" } },
 
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer" },
+				default = { "lsp", "snippets", "buffer", "path" },
 			},
 
 			appearance = {

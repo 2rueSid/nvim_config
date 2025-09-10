@@ -32,11 +32,11 @@ return {
 					update_root = false,
 				},
 				view = {
-					adaptive_size = false,
+					adaptive_size = true,
 					side = "left",
 					width = {
 						min = 30,
-						max = 30,
+						max = 50,
 					},
 					preserve_window_proportions = true,
 				},

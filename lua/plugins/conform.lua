@@ -7,42 +7,16 @@ return {
 			formatters_by_ft = {
 				-- nix = { name = "nixfmt", timeout_ms = 500, lsp_format = "prefer" },
 
-				javascript = {
-					"prettier",
-					"prettierd",
-					stop_on_first = true,
-					timeout_ms = 500,
-					lsp_format = "fallback",
-				},
-				javascriptreact = {
-					"prettier",
-					"prettierd",
-					stop_on_first = true,
-					timeout_ms = 500,
-					lsp_format = "fallback",
-				},
-				typescript = {
-					"prettier",
-					"prettierd",
-					stop_on_first = true,
-					timeout_ms = 500,
-					lsp_format = "fallback",
-				},
-				typescriptreact = {
-					"prettier",
-					"prettierd",
-					stop_on_first = true,
-					timeout_ms = 500,
-					lsp_format = "fallback",
-				},
-
-				json = { "prettier", "prettierd", stop_on_first = true, timeout_ms = 500, lsp_format = "fallback" },
-
-				markdown = { "prettier", "prettierd", stop_on_first = true, timeout_ms = 500, lsp_format = "fallback" },
+				javascript = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				javascriptreact = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				json = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				jsonc = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				typescript = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				markdown = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				typescriptreact = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				yaml = { "prettier" },
 
 				terraform = { "terraform_fmt" },
-
-				yaml = { "yamlfmt" },
 
 				lua = { "stylua" },
 
