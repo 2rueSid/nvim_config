@@ -11,9 +11,18 @@ return {
 				javascriptreact = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
 				json = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
 				jsonc = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
-				typescript = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
-				markdown = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+				-- typescript = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
 				typescriptreact = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
+
+				typescript = {
+					"biome",
+					"biome-check",
+					"biome-organize-imports",
+					timeout_ms = 500,
+					lsp_format = "fallback",
+				},
+
+				markdown = { "prettier", name = "dprint", timeout_ms = 500, lsp_format = "fallback" },
 				yaml = { "prettier" },
 
 				terraform = { "terraform_fmt" },
