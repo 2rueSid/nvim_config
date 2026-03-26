@@ -50,10 +50,26 @@ setup_keybinding("<leader>tt", "n", "<cmd>NvimTreeToggle<CR>", { noremap = true,
 setup_keybinding("<leader>tc", "n", "<cmd>NvimTreeClose<CR>", { noremap = true, silent = true })
 
 -- nvim-tmux-navigation
-setup_keybinding("<C-h>", "n", "<cmd>NvimTmuxNavigateLeft<CR>", { noremap = true, silent = true })
-setup_keybinding("<C-j>", "n", "<cmd>NvimTmuxNavigateDown<CR>", { noremap = true, silent = true })
-setup_keybinding("<C-k>", "n", "<cmd>NvimTmuxNavigateUp<CR>", { noremap = true, silent = true })
-setup_keybinding("<C-l>", "n", "<cmd>NvimTmuxNavigateRight<CR>", { noremap = true, silent = true })
+-- setup_keybinding("<C-h>", "n", "<cmd>NvimTmuxNavigateLeft<CR>", { noremap = true, silent = true })
+-- setup_keybinding("<C-j>", "n", "<cmd>NvimTmuxNavigateDown<CR>", { noremap = true, silent = true })
+-- setup_keybinding("<C-k>", "n", "<cmd>NvimTmuxNavigateUp<CR>", { noremap = true, silent = true })
+-- setup_keybinding("<C-l>", "n", "<cmd>NvimTmuxNavigateRight<CR>", { noremap = true, silent = true })
+
+setup_keybinding("<C-h>", "n", "<cmd>SmartCursorMoveLeft<CR>", { noremap = true, silent = true })
+setup_keybinding("<C-j>", "n", "<cmd>SmartCursorMoveDown<CR>", { noremap = true, silent = true })
+setup_keybinding("<C-k>", "n", "<cmd>SmartCursorMoveUp<CR>", { noremap = true, silent = true })
+setup_keybinding("<C-l>", "n", "<cmd>SmartCursorMoveLeft<CR>", { noremap = true, silent = true })
+
+setup_keybinding("<A-h>", "n", "<cmd>SmartResizeLeft<CR>", { noremap = true, silent = true })
+setup_keybinding("<A-j>", "n", "<cmd>SmartResizeDown<CR>", { noremap = true, silent = true })
+setup_keybinding("<A-k>", "n", "<cmd>SmartResizeUp<CR>", { noremap = true, silent = true })
+setup_keybinding("<A-l>", "n", "<cmd>SmartResizeRight<CR>", { noremap = true, silent = true })
+
+setup_keybinding("<leader><leader>h", "n", "<cmd>SmartSwapLeft<CR>", { noremap = true, silent = true })
+setup_keybinding("<leader><leader>j", "n", "<cmd>SmartSwapDown<CR>", { noremap = true, silent = true })
+setup_keybinding("<leader><leader>k", "n", "<cmd>SmartSwapUp<CR>", { noremap = true, silent = true })
+setup_keybinding("<leader><leader>l", "n", "<cmd>SmartSwapRight<CR>", { noremap = true, silent = true })
+
 setup_keybinding(
 	"<leader>dg",
 	"n",

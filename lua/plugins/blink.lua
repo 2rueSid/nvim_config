@@ -43,7 +43,9 @@ return {
 				keymap = {
 					preset = "enter",
 				},
-				sources = {},
+				sources = {
+					default = { "buffer", "path" },
+				},
 			},
 
 			completion = {
@@ -98,6 +100,9 @@ return {
 
 			sources = {
 				default = { "lsp", "snippets", "buffer", "path" },
+				per_filetype = {
+					codecompanion = { "codecompanion" },
+				},
 			},
 
 			appearance = {
