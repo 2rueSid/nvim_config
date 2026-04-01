@@ -94,7 +94,7 @@ return {
 				command = "TSBufEnable incremental_selection",
 			})
 
-			require("nvim-treesitter.configs").setup(opts)
+			require("nvim-treesitter").setup(opts)
 		end,
 	},
 }

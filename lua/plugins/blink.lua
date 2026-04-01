@@ -100,9 +100,6 @@ return {
 
 			sources = {
 				default = { "lsp", "snippets", "buffer", "path" },
-				per_filetype = {
-					codecompanion = { "codecompanion" },
-				},
 			},
 
 			appearance = {
