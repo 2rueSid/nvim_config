@@ -136,6 +136,18 @@ return {
     reset_editor()
   end,
 
+  first_switch_back_to_main_maps_visible_file_after_empty_create_like_handoff = function()
+    fixture(function(fx)
+      assert(vim.api.nvim_buf_get_name(0) == "")
+      assert(session.switch(fx.destination, fx.worktrees))
+      vim.cmd.edit(vim.fn.fnameescape(fx.linked .. "/base.txt"))
+
+      assert(session.switch(fx.worktrees[1], fx.worktrees))
+      h.eq(vim.fs.normalize(fx.root), vim.uv.cwd())
+      h.eq(vim.fs.normalize(fx.root .. "/base.txt"), vim.fs.normalize(vim.api.nvim_buf_get_name(0)))
+    end)
+  end,
+
   maps_first_visit_layout_and_closes_non_file_windows = function()
     fixture(function(fx)
       local missing = fx.root .. "/only-main.txt"

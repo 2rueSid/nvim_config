@@ -217,11 +217,11 @@ function M.switch(destination, worktrees)
   local modified, names = M.has_modified_file_buffers()
   if modified then return false, "modified file buffers block switching: " .. table.concat(names, ", ") end
 
+  local obsolete = source_buffers(source, worktrees)
   local source_script, capture_error = M.capture(source.path)
   if not source_script then return false, capture_error end
-  sessions[normalize(source.path)] = source_script
+  if #obsolete > 0 then sessions[normalize(source.path)] = source_script end
 
-  local obsolete = source_buffers(source, worktrees)
   local first_visit_views = views_by_window()
   local ok, operation_error = xpcall(function()
     stop_source_clients(source, worktrees)
