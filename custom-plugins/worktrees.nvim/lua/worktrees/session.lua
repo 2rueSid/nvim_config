@@ -14,6 +14,13 @@ local function same_path(left, right)
   return normalize(left) == normalize(right)
 end
 
+local function relative_to(path, root)
+  path, root = normalize(path), normalize(root)
+  if path == root then return "" end
+  local prefix = root:sub(-1) == "/" and root or root .. "/"
+  if path:sub(1, #prefix) == prefix then return path:sub(#prefix + 1) end
+end
+
 function M.owner(path, worktrees)
   path = normalize(path)
   local candidates = {}
@@ -22,8 +29,7 @@ function M.owner(path, worktrees)
   end
   table.sort(candidates, function(left, right) return #normalize(left.path) > #normalize(right.path) end)
   for _, worktree in ipairs(candidates) do
-    local root = normalize(worktree.path)
-    if path == root or path:sub(1, #root + 1) == root .. "/" then return worktree end
+    if relative_to(path, worktree.path) ~= nil then return worktree end
   end
 end
 
@@ -45,9 +51,9 @@ local function close_non_file_windows()
   end
 
   if normal_count == 0 then
-    vim.cmd("silent! tabonly")
-    vim.cmd("silent! only")
-    vim.cmd("enew")
+    vim.cmd("tabonly!")
+    vim.cmd("only!")
+    vim.cmd("enew!")
     return
   end
 
@@ -74,15 +80,35 @@ local function close_non_file_windows()
   end
 end
 
+local function view_restore_commands()
+  local commands = {}
+  local current = vim.fn.win_id2tabwin(vim.api.nvim_get_current_win())
+  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+      local position = vim.fn.win_id2tabwin(win)
+      local view = vim.api.nvim_win_call(win, vim.fn.winsaveview)
+      table.insert(commands, string.format("tabnext %d", position[1]))
+      table.insert(commands, string.format("%dwincmd w", position[2]))
+      table.insert(commands, "call winrestview(" .. vim.fn.string(view) .. ")")
+    end
+  end
+  table.insert(commands, string.format("tabnext %d", current[1]))
+  table.insert(commands, string.format("%dwincmd w", current[2]))
+  return commands
+end
+
 function M.capture(root)
   local previous = vim.o.sessionoptions
   local file = vim.fn.tempname() .. ".vim"
   local ok, result = xpcall(function()
     close_non_file_windows()
+    local view_commands = view_restore_commands()
     vim.o.sessionoptions = "curdir,folds,tabpages,winsize"
     vim.cmd.cd(vim.fn.fnameescape(root))
     vim.cmd("silent mksession! " .. vim.fn.fnameescape(file))
-    return table.concat(vim.fn.readfile(file), "\n")
+    local lines = vim.fn.readfile(file)
+    vim.list_extend(lines, view_commands)
+    return table.concat(lines, "\n")
   end, debug.traceback)
   vim.o.sessionoptions = previous
   vim.fn.delete(file)
@@ -146,8 +172,7 @@ local function map_first_visit(source, destination, worktrees, views)
       local path = normalize(vim.api.nvim_buf_get_name(buf))
       local owned = M.owner(path, worktrees)
       if owned and same_path(owned.path, source_root) then
-        local relative = path:sub(#source_root + 2)
-        local destination_path = vim.fs.joinpath(destination.path, relative)
+        local destination_path = vim.fs.joinpath(destination.path, relative_to(path, source_root))
         vim.api.nvim_win_set_buf(win, vim.fn.bufadd(destination_path))
       end
     end

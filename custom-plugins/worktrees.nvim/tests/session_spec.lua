@@ -18,7 +18,9 @@ end
 local function fixture(test)
   reset_editor()
   local root = h.temp_repo()
-  vim.fn.writefile({ "one", "two", "three", "four" }, root .. "/shared.txt")
+  local shared = {}
+  for line = 1, 80 do shared[line] = string.rep("x", 100) .. line end
+  vim.fn.writefile(shared, root .. "/shared.txt")
   vim.fn.writefile({ "alpha", "beta", "gamma" }, root .. "/other.txt")
   h.git(root, { "add", "shared.txt", "other.txt" })
   h.git(root, { "commit", "-m", "layout files" })
@@ -56,6 +58,16 @@ local function normal_paths_by_tab()
   return result
 end
 
+local function layout_snapshot(layout)
+  if layout[1] == "leaf" then
+    local buf = vim.api.nvim_win_get_buf(layout[2])
+    return { "leaf", vim.fs.normalize(vim.api.nvim_buf_get_name(buf)) }
+  end
+  local children = {}
+  for _, child in ipairs(layout[2]) do table.insert(children, layout_snapshot(child)) end
+  return { layout[1], children }
+end
+
 local function workspace_snapshot()
   local result = {}
   for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
@@ -63,13 +75,16 @@ local function workspace_snapshot()
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
       local buf = vim.api.nvim_win_get_buf(win)
       if normal_file(buf) then
+        local view = vim.api.nvim_win_call(win, vim.fn.winsaveview)
         table.insert(windows, {
           path = vim.fs.normalize(vim.api.nvim_buf_get_name(buf)),
           cursor = vim.api.nvim_win_get_cursor(win),
+          view = { lnum = view.lnum, col = view.col, topline = view.topline, leftcol = view.leftcol },
         })
       end
     end
-    table.insert(result, windows)
+    local layout = vim.fn.winlayout(vim.api.nvim_tabpage_get_number(tab))
+    table.insert(result, { layout = layout_snapshot(layout), windows = windows })
   end
   return result
 end
@@ -83,6 +98,28 @@ return {
     h.eq("/repo/.worktrees/a", session.owner("/repo/.worktrees/a/docs/x.md", worktrees).path)
     assert(session.owner("/repo-other/file.md", worktrees) == nil)
     assert(session.owner("/tmp/external.md", worktrees) == nil)
+    h.eq("/", session.owner("/any/descendant", { { path = "/" } }).path)
+  end,
+
+  maps_files_relative_to_a_root_worktree = function()
+    reset_editor()
+    local source = vim.fn.tempname() .. ".txt"
+    local destination = vim.fn.tempname()
+    vim.fn.writefile({ "source" }, source)
+    vim.fn.mkdir(destination, "p")
+    local worktrees = { { path = "/" }, { path = vim.fs.normalize(destination) } }
+    local ok, err = xpcall(function()
+      vim.cmd.cd("/")
+      vim.cmd.edit(vim.fn.fnameescape(source))
+      local source_path = vim.fs.normalize(vim.api.nvim_buf_get_name(0))
+      assert(session.switch(worktrees[2], worktrees))
+      local expected = vim.fs.joinpath(destination, source_path:sub(2))
+      h.eq(vim.fs.normalize(expected), vim.fs.normalize(vim.api.nvim_buf_get_name(0)))
+    end, debug.traceback)
+    reset_editor()
+    h.cleanup(destination)
+    vim.fn.delete(source)
+    if not ok then error(err) end
   end,
 
   rejects_modified_file_buffers = function()
@@ -151,7 +188,8 @@ return {
 
       vim.cmd("tabonly | only")
       vim.cmd.edit(vim.fn.fnameescape(fx.linked .. "/shared.txt"))
-      vim.api.nvim_win_set_cursor(0, { 4, 0 })
+      vim.wo.wrap = false
+      vim.fn.winrestview({ lnum = 40, col = 30, topline = 25, leftcol = 15 })
       vim.cmd.vsplit(vim.fn.fnameescape(fx.linked .. "/other.txt"))
       vim.api.nvim_win_set_cursor(0, { 3, 0 })
       vim.cmd.tabnew(vim.fn.fnameescape(fx.linked .. "/shared.txt"))
@@ -210,6 +248,31 @@ return {
       h.eq(vim.fs.normalize(fx.root), vim.uv.cwd())
       h.eq(2, calls)
     end)
+  end,
+
+  replaces_a_modified_non_file_window_when_hidden_is_disabled = function()
+    reset_editor()
+    local root = vim.fn.tempname()
+    vim.fn.mkdir(root, "p")
+    local previous_hidden = vim.o.hidden
+    local ok, err = xpcall(function()
+      vim.o.hidden = false
+      vim.bo.buftype = "nofile"
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, { "modified plugin state" })
+      vim.bo.modified = true
+      local plugin_buf = vim.api.nvim_get_current_buf()
+
+      assert(session.capture(root))
+      h.eq(1, #vim.api.nvim_list_wins())
+      local buf = vim.api.nvim_get_current_buf()
+      assert(buf ~= plugin_buf)
+      h.eq("", vim.bo[buf].buftype)
+      h.eq("", vim.api.nvim_buf_get_name(buf))
+    end, debug.traceback)
+    vim.o.hidden = previous_hidden
+    reset_editor()
+    h.cleanup(root)
+    if not ok then error(err) end
   end,
 
   restores_sessionoptions_when_capture_fails = function()
