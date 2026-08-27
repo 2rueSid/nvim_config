@@ -114,6 +114,45 @@ function M.format_row(worktree, status, active_path)
   return string.format("%s%-15s %-15s %s %s %s", prefix, name, branch, metrics, label_str, worktree.path)
 end
 
+local function pick(repo, worktrees, on_select)
+  local row_lookup, rows, statuses = {}, {}, {}
+  local pending = #worktrees
+
+  for _, worktree in ipairs(worktrees) do
+    git.status_async(worktree.path, function(status, status_err)
+      statuses[worktree.path] = { status = status, error = status_err }
+      pending = pending - 1
+      if pending ~= 0 then return end
+
+      for _, candidate in ipairs(worktrees) do
+        local row = M.format_row(candidate, statuses[candidate.path].status, repo.current_root)
+        table.insert(rows, row)
+        row_lookup[row] = candidate.path
+      end
+
+      require("fzf-lua").fzf_exec(rows, {
+        preview = create_previewer(row_lookup),
+        actions = {
+          default = function(selected)
+            if selected[1] and row_lookup[selected[1]] then on_select(row_lookup[selected[1]]) end
+          end,
+        },
+      })
+    end)
+  end
+end
+
+local function canonical(path)
+  return vim.fs.normalize(vim.uv.fs_realpath(path) or path)
+end
+
+local function find_worktree(worktrees, path)
+  path = canonical(path)
+  for _, worktree in ipairs(worktrees) do
+    if canonical(worktree.path) == path then return worktree end
+  end
+end
+
 -- List all worktrees with an fzf picker
 function M.list()
   local repo, err = git.repository(vim.fn.getcwd())
@@ -121,75 +160,24 @@ function M.list()
     vim.notify(err, vim.log.levels.ERROR)
     return
   end
-
   if #repo.worktrees == 0 then
     vim.notify("No worktrees found", vim.log.levels.INFO)
     return
   end
 
-  -- Row -> canonical path lookup for the current picker
-  local row_lookup = {}
-
-  -- Gather status for all worktrees asynchronously
-  local pending = #repo.worktrees
-  local rows = {}
-  local statuses = {}
-
-  for _, worktree in ipairs(repo.worktrees) do
-    git.status_async(worktree.path, function(status, status_err)
-      statuses[worktree.path] = { status = status, error = status_err }
-      pending = pending - 1
-
-      if pending == 0 then
-        -- All statuses gathered, now create rows and open fzf
-        for _, wt in ipairs(repo.worktrees) do
-          local st = statuses[wt.path]
-          local row = M.format_row(wt, st.status, repo.current_root)
-          table.insert(rows, row)
-          row_lookup[row] = wt.path
-        end
-
-        if #rows > 0 then
-          local fzf = require("fzf-lua")
-          local previewer_instance = create_previewer(row_lookup)
-
-          fzf.fzf_exec(rows, {
-            preview = previewer_instance,
-            actions = {
-              default = function(selected)
-                if #selected > 0 then
-                  local selected_row = selected[1]
-                  local selected_path = row_lookup[selected_row]
-
-                  if selected_path then
-                    -- Re-resolve from fresh registry to catch external changes
-                    local fresh_repo, repo_err = git.repository(selected_path)
-                    if fresh_repo then
-                      local found_worktree = nil
-                      for _, wt in ipairs(fresh_repo.worktrees) do
-                        if vim.fs.normalize(wt.path) == vim.fs.normalize(selected_path) then
-                          found_worktree = wt
-                          break
-                        end
-                      end
-
-                      if found_worktree then
-                        session.switch(found_worktree, fresh_repo.worktrees)
-                      else
-                        vim.notify("Worktree selection became stale", vim.log.levels.WARN)
-                      end
-                    else
-                      vim.notify("Failed to re-resolve repository: " .. (repo_err or "unknown error"), vim.log.levels.ERROR)
-                    end
-                  end
-                end
-              end,
-            },
-          })
-        end
-      end
-    end)
-  end
+  pick(repo, repo.worktrees, function(selected_path)
+    local fresh_repo, repo_err = git.repository(selected_path)
+    if not fresh_repo then
+      vim.notify("Failed to re-resolve repository: " .. (repo_err or "unknown error"), vim.log.levels.ERROR)
+      return
+    end
+    local selected = find_worktree(fresh_repo.worktrees, selected_path)
+    if not selected then
+      vim.notify("Worktree selection became stale", vim.log.levels.WARN)
+      return
+    end
+    session.switch(selected, fresh_repo.worktrees)
+  end)
 end
 
 -- Create a worktree with user input
@@ -229,9 +217,74 @@ function M.create()
   end)
 end
 
--- Merge a worktree (stub for now, will be implemented in Task 5)
 function M.merge()
-  vim.notify("merge not yet implemented", vim.log.levels.INFO)
+  local repo, err = git.repository(vim.fn.getcwd())
+  if not repo then
+    vim.notify(err, vim.log.levels.ERROR)
+    return
+  end
+
+  local sources = {}
+  for _, worktree in ipairs(repo.worktrees) do
+    if canonical(worktree.path) ~= canonical(repo.main_root) then table.insert(sources, worktree) end
+  end
+  if #sources == 0 then
+    vim.notify("No source worktrees found", vim.log.levels.INFO)
+    return
+  end
+
+  pick(repo, sources, function(selected_path)
+    local fresh_repo, repo_err = git.repository(selected_path)
+    if not fresh_repo then
+      vim.notify("Failed to re-resolve repository: " .. (repo_err or "unknown error"), vim.log.levels.ERROR)
+      return
+    end
+    local source = find_worktree(fresh_repo.worktrees, selected_path)
+    if not source or canonical(source.path) == canonical(fresh_repo.main_root) then
+      vim.notify("Worktree selection became stale", vim.log.levels.WARN)
+      return
+    end
+    if source.detached or not source.branch then
+      vim.notify("Source worktree is detached", vim.log.levels.ERROR)
+      return
+    end
+
+    local modified = session.has_modified_file_buffers()
+    if modified then
+      vim.notify("Cannot merge while file buffers have unsaved changes", vim.log.levels.ERROR)
+      return
+    end
+
+    local target = git.run({ "symbolic-ref", "--quiet", "--short", "HEAD" }, { cwd = fresh_repo.main_root })
+    if not target.ok then
+      vim.notify("Main worktree is detached", vim.log.levels.ERROR)
+      return
+    end
+    local target_branch = vim.trim(target.stdout)
+    if source.branch == target_branch then
+      vim.notify("Source and target branches must differ", vim.log.levels.ERROR)
+      return
+    end
+
+    vim.ui.select({ "Merge", "Cancel" }, {
+      prompt = string.format("Merge %s into %s?", source.branch, target_branch),
+    }, function(choice)
+      if choice ~= "Merge" then return end
+
+      local result = git.merge(fresh_repo, source)
+      if not result.ok then
+        local message = (result.aborted and "Merge failed and was aborted: " or "Merge failed: ")
+          .. (result.error or "unknown error")
+        if result.abort_error then message = message .. "\nAbort failed: " .. result.abort_error end
+        vim.notify(message, vim.log.levels.ERROR)
+        return
+      end
+
+      vim.notify(string.format("Merged %s into %s", source.branch, target_branch), vim.log.levels.INFO)
+      local owner = session.owner(vim.uv.cwd(), fresh_repo.worktrees)
+      if owner and canonical(owner.path) == canonical(fresh_repo.main_root) then vim.cmd("checktime") end
+    end)
+  end)
 end
 
 return M

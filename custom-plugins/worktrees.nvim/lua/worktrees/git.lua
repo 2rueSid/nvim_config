@@ -158,6 +158,58 @@ function M.status_async(path, callback)
   end)
 end
 
+function M.merge(repo, source)
+  if canonical(source.path) == canonical(repo.main_root) then
+    return { ok = false, aborted = false, error = "cannot merge the main worktree" }
+  end
+  if source.detached or not source.branch then
+    return { ok = false, aborted = false, error = "source worktree is detached" }
+  end
+
+  local target = M.run({ "symbolic-ref", "--quiet", "--short", "HEAD" }, { cwd = repo.main_root })
+  if not target.ok then
+    return { ok = false, aborted = false, error = "main worktree is detached" }
+  end
+  local target_branch = vim.trim(target.stdout)
+  if source.branch == target_branch then
+    return { ok = false, aborted = false, error = "source and target branches must differ" }
+  end
+
+  local source_status, source_error = M.status(source.path)
+  if not source_status then
+    return { ok = false, aborted = false, error = "cannot read source worktree status: " .. source_error }
+  end
+  if not M.is_clean(source_status) then
+    return { ok = false, aborted = false, error = "source worktree must be clean" }
+  end
+  local main_status, main_error = M.status(repo.main_root)
+  if not main_status then
+    return { ok = false, aborted = false, error = "cannot read main worktree status: " .. main_error }
+  end
+  if not M.is_clean(main_status) then
+    return { ok = false, aborted = false, error = "main worktree must be clean" }
+  end
+
+  local result = M.run({ "merge", source.branch }, { cwd = repo.main_root })
+  if result.ok then return { ok = true, aborted = false } end
+
+  local merge_head = M.run({ "rev-parse", "-q", "--verify", "MERGE_HEAD" }, { cwd = repo.main_root })
+  if not merge_head.ok then
+    return { ok = false, aborted = false, error = result.stderr }
+  end
+
+  local abort = M.run({ "merge", "--abort" }, { cwd = repo.main_root })
+  if abort.ok then
+    return { ok = false, aborted = true, error = result.stderr }
+  end
+  return {
+    ok = false,
+    aborted = false,
+    error = result.stderr,
+    abort_error = string.format("%s (manual recovery required at %s)", failure(abort), repo.main_root),
+  }
+end
+
 function M.validate_name(repo, name)
   if type(name) ~= "string" or vim.trim(name) == "" then
     return false, "worktree name is required"
