@@ -1,13 +1,13 @@
-# Neovim Worktree Module Design
+# Neovim Worktree Plugin Design
 
 **Date:** 2026-08-26
 **Status:** Approved design
 
 ## Purpose
 
-Add a local Neovim module for creating, inspecting, switching, and merging Git worktrees without leaving the current Neovim process. Worktrees created by the module live under the repository root at `.worktrees/<name>`.
+Add a local Neovim runtime plugin for creating, inspecting, switching, and merging Git worktrees without leaving the current Neovim process. Worktrees created by the plugin live under the repository root at `.worktrees/<name>`.
 
-The module reuses the installed `fzf-lua` plugin and Neovim 0.11 APIs. It adds no dependencies. Although initially local to this configuration, Git, session, and UI responsibilities remain separated so the module can be extracted into a standalone plugin later.
+The plugin lives under `custom-plugins/worktrees.nvim/` and follows Neovim's standard runtime layout so it can later move into its own repository without restructuring its implementation. The parent configuration loads it through lazy.nvim and installs `fzf-lua` separately as its only plugin dependency. Nothing is vendored into the plugin.
 
 ## Goals
 
@@ -27,10 +27,11 @@ The module reuses the installed `fzf-lua` plugin and Neovim 0.11 APIs. It adds n
 - Delete worktrees or branches after merging.
 - Choose a different merge target or automatically switch the main worktree branch.
 - Preserve unsaved buffer contents during a switch.
-- Support `/` in module-created worktree names.
+- Support `/` in plugin-created worktree names.
 - Maintain a worktree registry separate from Git.
 - Add support for another picker implementation.
-- Package or publish a standalone plugin in this change.
+- Add a README, Vim help, license, CI, release configuration, or other public-package metadata in this change.
+- Publish the plugin or move it into a separate repository in this change.
 
 ## User Interface
 
@@ -42,7 +43,7 @@ The module reuses the installed `fzf-lua` plugin and Neovim 0.11 APIs. It adds n
 | `:WorktreeList` | `<leader>wl` | Open the worktree picker; `Enter` switches to the selected worktree. |
 | `:WorktreeMerge` | `<leader>wm` | Select a source worktree and merge it into the main worktree's current branch. |
 
-The local configuration owns command and mapping registration. The worktree module exposes `create()`, `list()`, and `merge()` entry points and does not introduce a generic `setup()` API.
+The plugin registers the three user commands and exposes `create()`, `list()`, and `merge()` as Lua entry points. The parent lazy.nvim spec owns mappings, dependency declaration, and loading. The plugin does not impose mappings or introduce a generic `setup()` API.
 
 ### Worktree picker
 
@@ -52,7 +53,7 @@ The picker source of truth is:
 git worktree list --porcelain
 ```
 
-The module parses every registered worktree, including worktrees outside `.worktrees/`. It does not scan directories or maintain its own registry.
+The plugin parses every registered worktree, including worktrees outside `.worktrees/`. It does not scan directories or maintain its own registry.
 
 A row has this shape:
 
@@ -77,13 +78,29 @@ Status is recalculated with asynchronous `vim.system` calls whenever the picker 
 ## Architecture
 
 ```text
-lua/worktrees/
-├── init.lua       Public operations and fzf-lua integration
-├── git.lua        Git execution and porcelain parsing
-└── session.lua    In-process workspace state and switching
+custom-plugins/worktrees.nvim/
+├── plugin/
+│   └── worktrees.lua       User-command registration
+├── lua/worktrees/
+│   ├── init.lua            Public operations and fzf-lua integration
+│   ├── git.lua             Git execution and porcelain parsing
+│   └── session.lua         In-process workspace state and switching
+└── tests/                  Headless plugin tests
 
-lua/keymaps.lua    Commands and mappings
+lua/plugins/worktrees.lua   Parent lazy.nvim integration and mappings
 ```
+
+The lazy.nvim integration loads the local plugin with:
+
+```lua
+dir = vim.fn.stdpath("config") .. "/custom-plugins/worktrees.nvim"
+```
+
+It declares `ibhagwan/fzf-lua` as a separate dependency and defines `<leader>wc`, `<leader>wl`, and `<leader>wm`. The runtime plugin contains no copied dependency code and does not depend on unrelated parent-config modules.
+
+### `plugin/worktrees.lua`
+
+This runtime entry point registers `:WorktreeCreate`, `:WorktreeList`, and `:WorktreeMerge`. It contains no feature logic beyond command registration.
 
 ### `worktrees.git`
 
@@ -114,24 +131,24 @@ This module owns state keyed by canonical worktree path:
 
 ### `worktrees.init`
 
-This module coordinates the feature:
+This module is the plugin's public Lua API and coordinates the feature:
 
 - Prompt for creation names with `vim.ui.input`.
 - Construct fzf-lua pickers and previews.
 - Invoke repository, creation, switching, and merge operations.
 - Format notifications and picker rows.
-- Expose the three public operations used by commands and mappings.
+- Expose the three public operations used by commands and the parent lazy.nvim mappings.
 
 ## Repository and Worktree Rules
 
-Given a repository at `/usr/app`, module-created worktrees have this layout:
+Given a repository at `/usr/app`, plugin-created worktrees have this layout:
 
 ```text
 /usr/app/.git
 /usr/app/.worktrees/A
 ```
 
-The placement is based on the main repository root, not Neovim's startup subdirectory and not the currently selected linked worktree. The module creates `.worktrees/` when needed.
+The placement is based on the main repository root, not Neovim's startup subdirectory and not the currently selected linked worktree. The plugin creates `.worktrees/` when needed.
 
 Creation idempotently adds this repository-local exclusion to the common Git directory's `info/exclude` file:
 
@@ -252,7 +269,7 @@ On merge failure, the module checks whether Git left an active merge. If so, it 
 
 ## Testing
 
-No test framework or dependency is added. Headless Neovim tests use built-in Lua assertions, `vim.system`, and temporary Git repositories.
+No test framework or test dependency is added. Tests live inside `custom-plugins/worktrees.nvim/tests/` and use headless Neovim, built-in Lua assertions, `vim.system`, and temporary Git repositories.
 
 Automated checks cover:
 
@@ -286,3 +303,5 @@ The fzf-lua window receives a manual smoke test covering row rendering, preview 
 - Merge accepts only clean source and main worktrees, targets only the main worktree's current branch, confirms before execution, and retains the source afterward.
 - Merge conflicts are aborted automatically and reported.
 - Exiting Neovim leaves no plugin-managed workspace state on disk.
+- The plugin runs from `custom-plugins/worktrees.nvim/` through a local lazy.nvim spec, with `fzf-lua` declared separately.
+- Moving `custom-plugins/worktrees.nvim/` to a standalone repository requires integration changes only, not restructuring plugin implementation files.
