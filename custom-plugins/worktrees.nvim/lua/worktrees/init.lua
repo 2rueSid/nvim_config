@@ -176,7 +176,10 @@ function M.list()
       vim.notify("Worktree selection became stale", vim.log.levels.WARN)
       return
     end
-    session.switch(selected, fresh_repo.worktrees)
+    local ok, switch_err = session.switch(selected, fresh_repo.worktrees)
+    if not ok then
+      vim.notify(string.format("Worktree switch failed: %s at %s", switch_err, selected.path), vim.log.levels.ERROR)
+    end
   end)
 end
 

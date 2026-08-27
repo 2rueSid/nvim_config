@@ -160,6 +160,39 @@ return {
     end)
   end,
 
+  reports_selected_path_when_list_switch_fails = function()
+    local callbacks = {}
+    local picker
+    local notifications = {}
+    with_stubs({
+      git = {
+        repository = function(cwd)
+          if cwd == "/repo/w" then
+            return { current_root = "/repo/w", main_root = "/repo", worktrees = { { path = "/repo" }, { path = "/repo/w" } } }
+          end
+          return { current_root = "/repo", main_root = "/repo", worktrees = { { path = "/repo" }, { path = "/repo/w" } } }
+        end,
+        status_async = function(path, callback) callbacks[path] = callback end,
+        run = function() return { stdout = "", stderr = "" } end,
+      },
+      session = {
+        switch = function() return false, "modified buffers" end,
+      },
+      fzf = {
+        fzf_exec = function(rows, opts) picker = { rows = rows, opts = opts } end,
+      },
+    }, function(worktrees)
+      vim.notify = function(message) table.insert(notifications, message) end
+      worktrees.list()
+      callbacks["/repo"]({ staged = 0, unstaged = 0, untracked = 0 })
+      callbacks["/repo/w"]({ staged = 0, unstaged = 0, untracked = 0 })
+      local selected = picker.rows[2]
+      picker.opts.actions.default({ selected })
+      assert(notifications[1]:find("modified buffers", 1, true))
+      assert(notifications[1]:find("/repo/w", 1, true))
+    end)
+  end,
+
   reports_retained_path_when_created_worktree_cannot_switch = function()
     local notifications = {}
     with_stubs({
