@@ -131,7 +131,7 @@ local function pick(repo, worktrees, on_select)
       end
 
       require("fzf-lua").fzf_exec(rows, {
-        preview = create_previewer(row_lookup),
+        previewer = create_previewer(row_lookup),
         actions = {
           default = function(selected)
             if selected[1] and row_lookup[selected[1]] then on_select(row_lookup[selected[1]]) end

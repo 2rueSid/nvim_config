@@ -98,6 +98,8 @@ return {
       fzf = {
         fzf_exec = function(rows, opts)
           assert(#callbacks == 0)
+          assert(opts.previewer, "native Lua previewer must use opts.previewer")
+          assert(opts.preview == nil, "opts.preview is for shell preview specs")
           picker = { rows = rows, opts = opts }
         end,
       },
