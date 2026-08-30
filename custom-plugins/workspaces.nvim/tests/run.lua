@@ -1,4 +1,4 @@
-for _, suite in ipairs({ "registry_spec", "git_spec", "session_spec" }) do
+for _, suite in ipairs({ "registry_spec", "git_spec", "session_spec", "picker_spec" }) do
   for name, test in pairs(require(suite)) do
     io.write(string.format("%s.%s ... ", suite, name))
     test()
