@@ -185,11 +185,18 @@ local function clean_first_visit()
   vim.cmd("silent! only!")
 end
 
-local function stop_source_clients(source, roots)
+local function source_owns_client_root(root, source, roots, source_registered)
+  if source_registered then
+    local owned = M.owner(root, roots)
+    return owned and same_path(owned.path, source.path) or false
+  end
+  return relative_to(root, source.path) ~= nil
+end
+
+local function stop_source_clients(source, roots, source_registered)
   for _, client in ipairs(vim.lsp.get_clients()) do
     local root = client.root_dir or (client.config and client.config.root_dir)
-    local owned = root and M.owner(root, roots) or nil
-    if owned and same_path(owned.path, source.path) then client:stop() end
+    if root and source_owns_client_root(root, source, roots, source_registered) then client:stop() end
   end
 end
 
@@ -240,7 +247,7 @@ function M.switch(sessions, destination, roots, opts)
 
   local first_visit_views = views_by_window()
   local ok, operation_error = xpcall(function()
-    if source then stop_source_clients(source, roots) end
+    stop_source_clients(source, roots, source_registered)
     local destination_script = sessions[normalize(selected.path)]
     local views
     if destination_script then

@@ -158,6 +158,35 @@ return {
     h.cleanup(clients[3].root_dir)
   end,
 
+  stops_transient_source_rooted_lsp_clients_without_prefix_collisions = function()
+    h.reset_editor()
+    local source, destination = h.temp_dir(), h.temp_dir()
+    local nested = source .. "/nested"
+    vim.fn.mkdir(nested, "p")
+    vim.cmd.cd(source)
+    local stopped = {}
+    local clients = {
+      { root_dir = assert(vim.uv.fs_realpath(source)), stop = function() table.insert(stopped, "source") end },
+      { root_dir = assert(vim.uv.fs_realpath(nested)), stop = function() table.insert(stopped, "nested") end },
+      { root_dir = source .. "-sibling", stop = function() table.insert(stopped, "sibling") end },
+      { root_dir = assert(vim.uv.fs_realpath(destination)), stop = function() table.insert(stopped, "destination") end },
+    }
+    local original = vim.lsp.get_clients
+    local sessions = {}
+    local workspace_roots = { { label = "destination", path = assert(vim.uv.fs_realpath(destination)) } }
+    local ok, err = xpcall(function()
+      vim.lsp.get_clients = function() return clients end
+      assert(switch(sessions, workspace_roots[1], workspace_roots))
+      h.eq({ "source", "nested" }, stopped)
+    end, debug.traceback)
+    vim.lsp.get_clients = original
+    if not ok then error(err) end
+
+    h.reset_editor()
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
   rolls_back_source_when_first_destination_restore_fails = function()
     h.reset_editor()
     local source, destination = h.temp_dir(), h.temp_dir()
