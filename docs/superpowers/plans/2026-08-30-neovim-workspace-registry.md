@@ -27,6 +27,7 @@
 - Simultaneous writes from multiple Neovim processes remain unsupported.
 - Add no third-party dependency beyond the already installed fzf-lua.
 - Any delegated implementation or review must use only models from the `openai-codex/*` provider; never use `openai/*`, OpenRouter, or any other provider.
+- Use `openai-codex/gpt-5.6-luna` for code-writing agents, `openai-codex/gpt-5.6-terra` for reviewers, and `openai-codex/gpt-5.6-sol` only for planning or deeper reasoning when necessary.
 
 ## File Structure
 
