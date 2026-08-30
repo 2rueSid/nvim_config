@@ -178,6 +178,13 @@ local function map_first_visit(source, destination, roots, views)
   return views
 end
 
+local function clean_first_visit()
+  local clean = vim.api.nvim_create_buf(true, false)
+  vim.api.nvim_win_set_buf(0, clean)
+  vim.cmd("silent! tabonly!")
+  vim.cmd("silent! only!")
+end
+
 local function stop_source_clients(source, roots)
   for _, client in ipairs(vim.lsp.get_clients()) do
     local root = client.root_dir or (client.config and client.config.root_dir)
@@ -216,21 +223,20 @@ function M.switch(sessions, destination, roots, opts)
   if not selected then return false, "destination worktree is no longer registered" end
 
   local source = M.owner(vim.uv.cwd(), roots)
-  if not source and require_source then return false, "current directory is not owned by a registered worktree" end
-  if source and same_path(source.path, selected.path) then return true end
+  local source_registered = source ~= nil
+  if not source and not require_source then source = { path = normalize(vim.uv.cwd()) } end
+  if not source then return false, "current directory is not owned by a registered worktree" end
+  if same_path(source.path, selected.path) then return true end
 
   if not allow_modified then
     local modified, names = M.has_modified_file_buffers()
     if modified then return false, "modified file buffers block switching: " .. table.concat(names, ", ") end
   end
 
-  local obsolete = source and source_buffers(source, roots) or {}
-  local source_script, capture_error
-  if source then
-    source_script, capture_error = capture(source.path)
-    if not source_script then return false, capture_error end
-    if #obsolete > 0 then sessions[normalize(source.path)] = source_script end
-  end
+  local obsolete = source_buffers(source, roots)
+  local source_script, capture_error = capture(source.path)
+  if not source_script then return false, capture_error end
+  if source_registered and #obsolete > 0 then sessions[normalize(source.path)] = source_script end
 
   local first_visit_views = views_by_window()
   local ok, operation_error = xpcall(function()
@@ -242,7 +248,10 @@ function M.switch(sessions, destination, roots, opts)
       if not restored then error(restore_error, 0) end
       views = views_by_window()
     elseif first_visit == "map" then
-      views = source and map_first_visit(source, selected, roots, first_visit_views) or first_visit_views
+      views = map_first_visit(source, selected, roots, first_visit_views)
+    elseif first_visit == "clean" then
+      clean_first_visit()
+      views = {}
     else
       error("unsupported first-visit policy: " .. first_visit)
     end

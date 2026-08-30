@@ -1,5 +1,19 @@
 local M = {}
 
+local original_cwd = vim.uv.cwd()
+
+function M.reset_editor()
+  pcall(vim.cmd, "silent! tabonly")
+  pcall(vim.cmd, "silent! only")
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) then
+      pcall(vim.api.nvim_buf_delete, buf, { force = true })
+    end
+  end
+  vim.cmd("enew")
+  vim.cmd.cd(vim.fn.fnameescape(original_cwd))
+end
+
 function M.eq(expected, actual, message)
   assert(vim.deep_equal(expected, actual), message or vim.inspect({ expected = expected, actual = actual }))
 end
