@@ -45,6 +45,7 @@ local function validate_rows(value, text)
   end
 
   local rows = {}
+  local paths = {}
   for index, row in ipairs(value) do
     if type(row) ~= "table" or row.label == nil or row.path == nil then
       return invalid("entry " .. index .. " must have label and path")
@@ -62,7 +63,10 @@ local function validate_rows(value, text)
     if type(row.path) ~= "string" or not is_absolute(row.path) then
       return invalid("entry " .. index .. " must have an absolute path")
     end
-    rows[index] = { label = row.label, path = vim.fs.normalize(row.path) }
+    local normalized_path = vim.fs.normalize(row.path)
+    if paths[normalized_path] then return invalid("duplicate workspace path: " .. normalized_path) end
+    paths[normalized_path] = true
+    rows[index] = { label = row.label, path = normalized_path }
   end
   return rows
 end

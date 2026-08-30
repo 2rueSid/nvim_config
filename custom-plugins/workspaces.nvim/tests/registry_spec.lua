@@ -78,6 +78,24 @@ return {
     h.cleanup(root)
   end,
 
+  rejects_duplicate_stored_paths_without_rewriting = function()
+    local root = h.temp_dir()
+    local workspace = root .. "/workspace"
+    vim.fn.mkdir(workspace, "p")
+    local file = root .. "/registry.json"
+    local contents = string.format(
+      '[{"label":"one","path":%q},{"label":"two","path":%q}]',
+      workspace,
+      workspace .. "/."
+    )
+    vim.fn.writefile({ contents }, file)
+    local before = table.concat(vim.fn.readfile(file), "\n")
+    local rows, err = registry.add("new", root, file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    h.eq(before, table.concat(vim.fn.readfile(file), "\n"))
+    h.cleanup(root)
+  end,
+
   loads_missing_registry_as_empty = function()
     local root = h.temp_dir()
     h.eq({}, assert(registry.load(root .. "/missing/registry.json")))
