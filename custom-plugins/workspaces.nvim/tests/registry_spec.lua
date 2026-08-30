@@ -70,7 +70,8 @@ return {
     local root = h.temp_dir()
     local file = root .. "/registry.json"
     local contents = '[{"label":"x"}]\n'
-    vim.fn.writefile({ contents:gsub("\n$", "") }, file)
+    contents = contents:gsub("\n$", "")
+    vim.fn.writefile({ contents }, file)
     local before = table.concat(vim.fn.readfile(file), "\n")
     local rows, err = registry.load(file)
     assert(rows == nil and err:find("invalid registry", 1, true))
@@ -93,6 +94,60 @@ return {
     local rows, err = registry.add("new", root, file)
     assert(rows == nil and err:find("invalid registry", 1, true))
     h.eq(before, table.concat(vim.fn.readfile(file), "\n"))
+    h.cleanup(root)
+  end,
+
+  rejects_existing_symlink_stored_paths_without_rewriting = function()
+    local root = h.temp_dir()
+    local target, alias = root .. "/target", root .. "/alias"
+    vim.fn.mkdir(target, "p")
+    assert(vim.uv.fs_symlink(target, alias))
+    local file = root .. "/registry.json"
+    local contents = string.format('[{"label":"alias","path":%q}]\n', alias)
+    contents = contents:gsub("\n$", "")
+    vim.fn.writefile({ contents }, file)
+    local before = table.concat(vim.fn.readfile(file), "\n")
+    vim.fn.mkdir(root .. "/new", "p")
+
+    local rows, err = registry.load(file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    rows, err = registry.add("new", root .. "/new", file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    rows, err = registry.remove(alias, file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    h.eq(before, table.concat(vim.fn.readfile(file), "\n"))
+    h.cleanup(root)
+  end,
+
+  rejects_duplicate_resolved_paths_without_rewriting = function()
+    local root = h.temp_dir()
+    local target, alias = root .. "/target", root .. "/alias"
+    vim.fn.mkdir(target, "p")
+    assert(vim.uv.fs_symlink(target, alias))
+    local file = root .. "/registry.json"
+    local contents = string.format(
+      '[{"label":"alias","path":%q},{"label":"target","path":%q}]\n',
+      alias,
+      target
+    )
+    contents = contents:gsub("\n$", "")
+    vim.fn.writefile({ contents }, file)
+    local before = table.concat(vim.fn.readfile(file), "\n")
+    local rows, err = registry.load(file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    rows, err = registry.remove(target, file)
+    assert(rows == nil and err:find("invalid registry", 1, true))
+    h.eq(before, table.concat(vim.fn.readfile(file), "\n"))
+    h.cleanup(root)
+  end,
+
+  keeps_missing_paths_valid_and_removable = function()
+    local root = h.temp_dir()
+    local missing = root .. "/missing"
+    local file = root .. "/registry.json"
+    vim.fn.writefile({ string.format('[{"label":"gone","path":%q}]', missing) }, file)
+    h.eq({ { label = "gone", path = missing } }, assert(registry.load(file)))
+    h.eq({}, assert(registry.remove(missing, file)))
     h.cleanup(root)
   end,
 

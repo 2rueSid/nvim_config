@@ -4,28 +4,31 @@ local function normalize(path)
   return vim.fs.normalize(path)
 end
 
+local function canonical(path)
+  return normalize(vim.uv.fs_realpath(path) or path)
+end
+
 local function normal_file_buffer(buf)
   return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= ""
 end
 
 local function same_path(left, right)
-  return normalize(left) == normalize(right)
+  return canonical(left) == canonical(right)
 end
 
 local function relative_to(path, root)
-  path, root = normalize(path), normalize(root)
+  path, root = canonical(path), canonical(root)
   if path == root then return "" end
   local prefix = root:sub(-1) == "/" and root or root .. "/"
   if path:sub(1, #prefix) == prefix then return path:sub(#prefix + 1) end
 end
 
 function M.owner(path, roots)
-  path = normalize(path)
   local candidates = {}
   for _, root in ipairs(roots or {}) do
     table.insert(candidates, root)
   end
-  table.sort(candidates, function(left, right) return #normalize(left.path) > #normalize(right.path) end)
+  table.sort(candidates, function(left, right) return #canonical(left.path) > #canonical(right.path) end)
   for _, root in ipairs(candidates) do
     if relative_to(path, root.path) ~= nil then return root end
   end
@@ -163,7 +166,7 @@ local function clamp_views(views)
 end
 
 local function map_first_visit(source, destination, roots, views)
-  local source_root = normalize(source.path)
+  local source_root = canonical(source.path)
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
     if normal_file_buffer(buf) then
@@ -243,12 +246,12 @@ function M.switch(sessions, destination, roots, opts)
   local obsolete = source_buffers(source, roots)
   local source_script, capture_error = capture(source.path)
   if not source_script then return false, capture_error end
-  if source_registered and #obsolete > 0 then sessions[normalize(source.path)] = source_script end
+  if source_registered and #obsolete > 0 then sessions[canonical(source.path)] = source_script end
 
   local first_visit_views = views_by_window()
   local ok, operation_error = xpcall(function()
     stop_source_clients(source, roots, source_registered)
-    local destination_script = sessions[normalize(selected.path)]
+    local destination_script = sessions[canonical(selected.path)]
     local views
     if destination_script then
       local restored, restore_error = restore(destination_script)

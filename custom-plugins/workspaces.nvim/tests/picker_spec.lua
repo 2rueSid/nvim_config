@@ -46,9 +46,47 @@ return {
 
   formats_non_git_missing_and_error_states = function()
     local workspaces = require("workspaces")
-    assert(workspaces.format_row({ label = "plain", path = "/code/plain" }, { kind = "non_git" }, nil):find("—", 1, true))
+    local non_git = workspaces.format_row({ label = "plain", path = "/code/plain" }, { kind = "non_git" }, nil)
+    assert(non_git:find("—", 1, true))
+    assert(not non_git:find("[non-Git]", 1, true))
     assert(workspaces.format_row({ label = "gone", path = "/code/gone" }, { kind = "missing" }, nil):find("[missing]", 1, true))
     assert(workspaces.format_row({ label = "broken", path = "/code/broken" }, { kind = "error" }, nil):find("ERR", 1, true))
+  end,
+
+  sanitizes_control_labels_without_losing_duplicate_path_selection = function()
+    local root = h.temp_dir()
+    local one, two = root .. "/one", root .. "/two"
+    vim.fn.mkdir(one, "p")
+    vim.fn.mkdir(two, "p")
+    local records = {
+      { label = "same\nlabel", path = one },
+      { label = "same\tlabel", path = two },
+    }
+    local callbacks, picker, removed = {}, nil, nil
+    with_stubs({
+      registry = {
+        load = function() return records end,
+        remove = function(path) removed = path; return {} end,
+      },
+      git = { inspect_async = function(path, callback) callbacks[path] = callback end },
+      session = {},
+      fzf = { fzf_exec = function(rows, opts) picker = { rows = rows, opts = opts } end },
+    }, function(workspaces)
+      workspaces.list()
+      callbacks[one]({ kind = "non_git" })
+      callbacks[two]({ kind = "non_git" })
+      h.eq(2, #picker.rows)
+      for _, row in ipairs(picker.rows) do
+        assert(not row:find("[\r\n\t\v\f]"))
+      end
+      assert(picker.rows[1]:find(one, 1, true))
+      assert(picker.rows[2]:find(two, 1, true))
+      picker.opts.actions["ctrl-d"]({ picker.rows[2] })
+      h.eq(vim.fs.normalize(assert(vim.uv.fs_realpath(two))), removed)
+      h.eq("same\nlabel", records[1].label)
+      h.eq("same\tlabel", records[2].label)
+    end)
+    h.cleanup(root)
   end,
 
   registers_commands = function()
@@ -185,15 +223,22 @@ return {
   end,
 
   switches_refreshed_record_and_emits_only_after_success = function()
+    local root = h.temp_dir()
+    local source_path, destination_path = root .. "/source", root .. "/destination"
+    vim.fn.mkdir(source_path, "p")
+    vim.fn.mkdir(destination_path, "p")
+    source_path = vim.fs.normalize(assert(vim.uv.fs_realpath(source_path)))
+    destination_path = vim.fs.normalize(assert(vim.uv.fs_realpath(destination_path)))
     local callbacks, picker, switched, event
-    local old = { label = "Destination", path = "/repo/destination" }
-    local fresh = { label = "Destination", path = "/repo/destination/." }
-    local registries = { { { label = "Source", path = "/source" }, old }, { { label = "Source", path = "/source" }, fresh } }
+    local old = { label = "Destination", path = destination_path }
+    local fresh = { label = "Destination", path = destination_path .. "/." }
+    local source = { label = "Source", path = source_path }
+    local registries = { { source, old }, { source, fresh } }
     with_stubs({
       registry = { load = function() local result = table.remove(registries, 1); return result end },
       git = { inspect_async = function(path, callback) callbacks[path] = callback end },
       session = {
-        owner = function() return { label = "Source", path = "/source" } end,
+        owner = function() return source end,
         switch = function(sessions, destination, roots, opts)
           switched = { destination = destination, roots = roots, opts = opts }
           return true
@@ -201,16 +246,51 @@ return {
       },
       fzf = { fzf_exec = function(rows, opts) picker = { rows = rows, opts = opts } end },
     }, function(workspaces)
+      vim.cmd.cd(source_path)
       vim.api.nvim_exec_autocmds = function(_, opts) event = opts end
       callbacks = {}
       workspaces.list()
       callbacks[old.path]({ kind = "git", status = {} })
-      callbacks["/source"]({ kind = "git", status = {} })
+      callbacks[source_path]({ kind = "git", status = {} })
       picker.opts.actions.default({ picker.rows[2] })
       assert(switched and switched.destination == fresh)
       h.eq({ require_source = false, allow_modified = true, first_visit = "clean" }, switched.opts)
-      h.eq({ pattern = "WorkspaceChanged", data = { from = "/source", to = fresh.path } }, event)
+      h.eq({ pattern = "WorkspaceChanged", data = { from = vim.fs.normalize(assert(vim.uv.fs_realpath(source_path))), to = fresh.path } }, event)
     end)
+    h.cleanup(root)
+  end,
+
+  rejects_destination_deleted_after_picker_metadata = function()
+    local root = h.temp_dir()
+    local source_path, destination_path = root .. "/source", root .. "/destination"
+    vim.fn.mkdir(source_path, "p")
+    vim.fn.mkdir(destination_path, "p")
+    source_path = vim.fs.normalize(assert(vim.uv.fs_realpath(source_path)))
+    destination_path = vim.fs.normalize(assert(vim.uv.fs_realpath(destination_path)))
+    local source = { label = "Source", path = source_path }
+    local destination = { label = "Destination", path = destination_path }
+    local callbacks, picker, switched, messages = {}, nil, false, {}
+    with_stubs({
+      registry = { load = function() return { source, destination } end },
+      git = { inspect_async = function(path, callback) callbacks[path] = callback end },
+      session = {
+        owner = function() return source end,
+        switch = function() switched = true end,
+      },
+      fzf = { fzf_exec = function(rows, opts) picker = { rows = rows, opts = opts } end },
+    }, function(workspaces)
+      vim.cmd.cd(source_path)
+      vim.notify = function(message) table.insert(messages, message) end
+      workspaces.list()
+      callbacks[source_path]({ kind = "git", status = {} })
+      callbacks[destination_path]({ kind = "git", status = {} })
+      vim.fn.delete(destination_path, "d")
+      picker.opts.actions.default({ picker.rows[2] })
+      assert(not switched)
+      assert(messages[1]:find("missing", 1, true))
+      h.eq(vim.fs.normalize(assert(vim.uv.fs_realpath(source_path))), vim.uv.cwd())
+    end)
+    h.cleanup(root)
   end,
 
   failed_and_current_switches_emit_no_event = function()

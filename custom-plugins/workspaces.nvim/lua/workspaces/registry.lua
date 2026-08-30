@@ -64,8 +64,18 @@ local function validate_rows(value, text)
       return invalid("entry " .. index .. " must have an absolute path")
     end
     local normalized_path = vim.fs.normalize(row.path)
-    if paths[normalized_path] then return invalid("duplicate workspace path: " .. normalized_path) end
-    paths[normalized_path] = true
+    local real_path = vim.uv.fs_realpath(normalized_path)
+    if real_path then
+      real_path = vim.fs.normalize(real_path)
+      if real_path ~= normalized_path then
+        return invalid("entry " .. index .. " has a noncanonical existing path")
+      end
+      if paths[real_path] then return invalid("duplicate workspace path: " .. real_path) end
+      paths[real_path] = true
+    else
+      if paths[normalized_path] then return invalid("duplicate workspace path: " .. normalized_path) end
+      paths[normalized_path] = true
+    end
     rows[index] = { label = row.label, path = normalized_path }
   end
   return rows

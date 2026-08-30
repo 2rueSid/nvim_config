@@ -257,4 +257,42 @@ return {
     h.cleanup(source)
     h.cleanup(destination)
   end,
+
+  canonicalizes_symlink_opened_source_for_restore_and_lsp_ownership = function()
+    h.reset_editor()
+    local root = h.temp_dir()
+    local source, destination, alias = root .. "/source", root .. "/destination", root .. "/source-link"
+    vim.fn.mkdir(source, "p")
+    vim.fn.mkdir(destination, "p")
+    assert(vim.uv.fs_symlink(source, alias))
+    vim.fn.writefile({ "one", "two", "three" }, source .. "/source.txt")
+    vim.fn.writefile({ "alpha", "beta", "gamma" }, source .. "/other.txt")
+    vim.cmd.cd(alias)
+    vim.cmd.edit(vim.fn.fnameescape(alias .. "/source.txt"))
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "unsaved", "two", "three" })
+    vim.api.nvim_win_set_cursor(0, { 2, 1 })
+    vim.cmd.vsplit(vim.fn.fnameescape(alias .. "/other.txt"))
+    vim.api.nvim_win_set_cursor(0, { 3, 2 })
+    local expected = workspace_snapshot()
+    local stopped = {}
+    local clients = {
+      { root_dir = alias, stop = function() table.insert(stopped, "alias") end },
+      { root_dir = assert(vim.uv.fs_realpath(destination)), stop = function() table.insert(stopped, "destination") end },
+    }
+    local original = vim.lsp.get_clients
+    local sessions, workspace_roots = {}, roots(source, destination)
+    local ok, err = xpcall(function()
+      vim.lsp.get_clients = function() return clients end
+      assert(switch(sessions, workspace_roots[2], workspace_roots))
+      h.eq({ "alias" }, stopped)
+      assert(switch(sessions, workspace_roots[1], workspace_roots))
+    end, debug.traceback)
+    vim.lsp.get_clients = original
+    if not ok then error(err) end
+    h.eq(expected, workspace_snapshot())
+    h.eq({ "unsaved", "two", "three" }, vim.api.nvim_buf_get_lines(vim.fn.bufnr(alias .. "/source.txt"), 0, -1, false))
+
+    h.reset_editor()
+    h.cleanup(root)
+  end,
 }

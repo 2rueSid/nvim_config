@@ -11,6 +11,18 @@ local function canonical(path)
   return vim.fs.normalize(vim.uv.fs_realpath(path) or vim.fn.fnamemodify(path, ":p"))
 end
 
+local function live_directory(path)
+  local real = vim.uv.fs_realpath(path)
+  if not real then return nil, "missing" end
+  local stat = vim.uv.fs_stat(real)
+  if not stat or stat.type ~= "directory" then return nil, "not a directory" end
+  return vim.fs.normalize(real)
+end
+
+local function display_label(label)
+  return label:gsub("%c", " ")
+end
+
 local function owns(path, root)
   path, root = canonical(path), canonical(root)
   return path == root or path:sub(1, #root + 1) == root .. "/"
@@ -51,13 +63,13 @@ function M.format_row(workspace, metadata, active_path)
       status.behind ~= nil and tostring(status.behind) or "-"
     )
   elseif kind == "non_git" then
-    branch, details = "—", "[non-Git]"
+    branch, details = "—", "—"
   elseif kind == "missing" then
     branch, details = "—", "[missing]"
   else
     branch, details = "—", "ERR"
   end
-  return string.format("%s%-15s %-15s %-25s %s", marker, workspace.label, branch, details, workspace.path)
+  return string.format("%s%-15s %-15s %-25s %s", marker, display_label(workspace.label), branch, details, workspace.path)
 end
 
 local function create_previewer(row_lookup)
@@ -99,6 +111,13 @@ local function switch_selected(path, metadata_by_path)
     notify("Workspace selection became stale: " .. path, vim.log.levels.WARN)
     return
   end
+
+  local destination_path, destination_error = live_directory(destination.path)
+  if not destination_path then
+    notify("Workspace destination is missing or is " .. destination_error .. ": " .. destination.path)
+    return
+  end
+  destination.path = destination_path
 
   local cwd = vim.uv.cwd()
   local source = registered_owner(cwd, fresh)
