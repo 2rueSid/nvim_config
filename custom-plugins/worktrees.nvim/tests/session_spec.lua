@@ -296,4 +296,12 @@ return {
     h.eq(previous, vim.o.sessionoptions)
     reset_editor()
   end,
+
+  shared_engine_is_available = function()
+    local engine = require("workspace_session")
+    assert(type(engine.owner) == "function")
+    assert(type(engine.capture) == "function")
+    assert(type(engine.restore) == "function")
+    assert(type(engine.switch) == "function")
+  end,
 }
