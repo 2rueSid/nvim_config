@@ -2,7 +2,13 @@ return {
   {
     dir = vim.fn.stdpath("config") .. "/custom-plugins/worktrees.nvim",
     name = "worktrees.nvim",
-    dependencies = { "ibhagwan/fzf-lua" },
+    dependencies = {
+      "ibhagwan/fzf-lua",
+      {
+        dir = vim.fn.stdpath("config") .. "/custom-plugins/workspace-session.nvim",
+        name = "workspace-session.nvim",
+      },
+    },
     cmd = { "WorktreeCreate", "WorktreeList", "WorktreeMerge" },
     keys = {
       { "<leader>wc", function() require("worktrees").create() end, desc = "Create worktree" },
