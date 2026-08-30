@@ -53,6 +53,23 @@ return {
     h.cleanup(plain)
   end,
 
+  reports_operational_stat_errors_without_running_git = function()
+    local original_stat = vim.uv.fs_stat
+    local original_run_async = git.run_async
+    local result
+    local ok, err = xpcall(function()
+      vim.uv.fs_stat = function() return nil, "permission denied", "EACCES" end
+      git.run_async = function() error("Git command must not start") end
+      git.inspect_async("/blocked/workspace", function(value) result = value end)
+      vim.wait(1000, function() return result ~= nil end)
+      h.eq("error", assert(result).kind)
+      assert(result.error:find("permission denied", 1, true))
+    end, debug.traceback)
+    vim.uv.fs_stat = original_stat
+    git.run_async = original_run_async
+    assert(ok, err)
+  end,
+
   preview_contains_status_and_recent_commit = function()
     local repo = h.temp_repo()
     local output = table.concat(git.preview(repo), "\n")

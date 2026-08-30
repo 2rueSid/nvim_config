@@ -64,8 +64,22 @@ end
 local status_args = { "status", "--porcelain=v2", "--branch", "--untracked-files=all" }
 
 function M.inspect_async(path, callback)
-  if not vim.uv.fs_stat(path) then
-    vim.schedule(function() callback({ kind = "missing" }) end)
+  local stat, stat_error, stat_code = vim.uv.fs_stat(path)
+  if not stat then
+    local missing = stat_code == "ENOENT"
+      or (type(stat_error) == "string" and stat_error:match("^ENOENT") ~= nil)
+    local result
+    if missing then
+      result = { kind = "missing" }
+    else
+      result = {
+        kind = "error",
+        error = stat_error ~= nil and tostring(stat_error)
+          or stat_code ~= nil and tostring(stat_code)
+          or "failed to stat path",
+      }
+    end
+    vim.schedule(function() callback(result) end)
     return
   end
   M.run_async(status_args, { cwd = path }, function(result)
