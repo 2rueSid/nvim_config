@@ -54,10 +54,13 @@ return {
   registers_commands = function()
     local source = debug.getinfo(1, "S").source:sub(2)
     local plugin = vim.fs.dirname(vim.fs.dirname(source))
-    dofile(plugin .. "/plugin/workspaces.lua")
-    for _, command in ipairs({ "WorkspaceAdd", "WorkspaceList", "WorkspaceDelete" }) do
-      h.eq(2, vim.fn.exists(":" .. command))
-    end
+    local commands = { "WorkspaceAdd", "WorkspaceList", "WorkspaceDelete" }
+    local ok, err = xpcall(function()
+      dofile(plugin .. "/plugin/workspaces.lua")
+      for _, command in ipairs(commands) do h.eq(2, vim.fn.exists(":" .. command)) end
+    end, debug.traceback)
+    for _, command in ipairs(commands) do pcall(vim.api.nvim_del_user_command, command) end
+    if not ok then error(err, 0) end
   end,
 
   prompts_and_trims_add_label = function()
