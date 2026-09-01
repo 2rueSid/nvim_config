@@ -162,6 +162,58 @@ return {
     end)
   end,
 
+  setup_passes_propagation_to_create = function()
+    local passed
+    local calls = 0
+    with_stubs({
+      git = {
+        repository = function(cwd)
+          calls = calls + 1
+          if calls == 1 then return { current_root = "/repo/current", worktrees = {} } end
+          return { worktrees = { { path = cwd, branch = "new" } } }
+        end,
+        create = function(_, _, _, propagate)
+          passed = propagate
+          return { path = "/repo/.worktrees/new", branch = "new" }
+        end,
+      },
+      session = { switch = function() return true end },
+      fzf = {},
+    }, function(worktrees)
+      local propagate = { paths = { ".env*" }, mode = "copy" }
+      worktrees.setup({ propagate = propagate })
+      vim.ui.input = function(_, callback) callback("new") end
+      worktrees.create()
+      h.eq(propagate, passed)
+    end)
+  end,
+
+  warns_and_switches_when_propagation_is_partial = function()
+    local notifications = {}
+    local switched = false
+    local calls = 0
+    with_stubs({
+      git = {
+        repository = function(cwd)
+          calls = calls + 1
+          if calls == 1 then return { current_root = "/repo/current", worktrees = {} } end
+          return { worktrees = { { path = cwd, branch = "new" } } }
+        end,
+        create = function()
+          return { path = "/repo/.worktrees/new", branch = "new" }, "propagation failed"
+        end,
+      },
+      session = { switch = function() switched = true return true end },
+      fzf = {},
+    }, function(worktrees)
+      vim.notify = function(message, level) table.insert(notifications, { message, level }) end
+      vim.ui.input = function(_, callback) callback("new") end
+      worktrees.create()
+      assert(switched)
+      h.eq({ { "propagation failed", vim.log.levels.WARN } }, notifications)
+    end)
+  end,
+
   reports_selected_path_when_list_switch_fails = function()
     local callbacks = {}
     local picker

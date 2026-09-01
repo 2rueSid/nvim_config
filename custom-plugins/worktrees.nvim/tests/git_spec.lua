@@ -132,6 +132,101 @@ return {
     h.cleanup(root)
   end,
 
+  copies_propagated_glob_matches = function()
+    assert(type(git.propagate) == "function", "git.propagate is missing")
+    local source = vim.fn.tempname()
+    local destination = vim.fn.tempname()
+    vim.fn.mkdir(source, "p")
+    vim.fn.mkdir(destination, "p")
+    vim.fn.writefile({ "base" }, source .. "/.env")
+    vim.fn.writefile({ "local" }, source .. "/.env.local")
+
+    h.eq({}, git.propagate(source, destination, { paths = { ".env*" }, mode = "copy" }))
+    h.eq({ "base" }, vim.fn.readfile(destination .. "/.env"))
+    h.eq({ "local" }, vim.fn.readfile(destination .. "/.env.local"))
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
+  copies_propagated_directories = function()
+    local source = vim.fn.tempname()
+    local destination = vim.fn.tempname()
+    vim.fn.mkdir(source .. "/.venv/bin", "p")
+    vim.fn.mkdir(destination, "p")
+    vim.fn.writefile({ "python" }, source .. "/.venv/bin/python")
+
+    h.eq({}, git.propagate(source, destination, { paths = { ".venv" }, mode = "copy" }))
+    h.eq({ "python" }, vim.fn.readfile(destination .. "/.venv/bin/python"))
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
+  preserves_symlinks_inside_copied_directories = function()
+    local source = vim.fn.tempname()
+    local destination = vim.fn.tempname()
+    vim.fn.mkdir(source .. "/.venv/bin", "p")
+    vim.fn.mkdir(destination, "p")
+    vim.fn.writefile({ "python" }, source .. "/.venv/bin/python3")
+    assert(vim.uv.fs_symlink("python3", source .. "/.venv/bin/python"))
+
+    h.eq({}, git.propagate(source, destination, { paths = { ".venv" }, mode = "copy" }))
+    h.eq("python3", vim.uv.fs_readlink(destination .. "/.venv/bin/python"))
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
+  symlinks_propagated_paths = function()
+    local source = vim.fn.tempname()
+    local destination = vim.fn.tempname()
+    vim.fn.mkdir(source .. "/.venv", "p")
+    vim.fn.mkdir(destination, "p")
+
+    h.eq({}, git.propagate(source, destination, { paths = { ".venv" }, mode = "symlink" }))
+    h.eq(vim.fs.normalize(source .. "/.venv"), vim.uv.fs_readlink(destination .. "/.venv"))
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
+  propagates_from_creation_start_worktree = function()
+    local root = h.temp_repo()
+    vim.fn.writefile({ "secret" }, root .. "/.env")
+    local repo = assert(git.repository(root))
+
+    local worktree, warning = git.create(repo, "feature-env", root, { paths = { ".env" }, mode = "copy" })
+    assert(worktree)
+    h.eq(nil, warning)
+    h.eq({ "secret" }, vim.fn.readfile(worktree.path .. "/.env"))
+    h.cleanup(root)
+  end,
+
+  rejects_source_root_propagation = function()
+    local source = vim.fn.tempname()
+    local destination = vim.fn.tempname()
+    vim.fn.mkdir(source, "p")
+    vim.fn.mkdir(destination, "p")
+    vim.fn.writefile({ "keep" }, destination .. "/marker")
+
+    h.eq({ ": path must select entries inside the source worktree" }, git.propagate(source, destination, {
+      paths = { "" },
+      mode = "copy",
+    }))
+    h.eq({ "keep" }, vim.fn.readfile(destination .. "/marker"))
+    h.cleanup(source)
+    h.cleanup(destination)
+  end,
+
+  rejects_unsafe_propagation_configuration = function()
+    h.eq({ "mode must be 'copy' or 'symlink'" }, git.propagate("/repo", "/new", { paths = {}, mode = "move" }))
+    h.eq({ "../.env: path must stay inside the source worktree" }, git.propagate("/repo", "/new", {
+      paths = { "../.env" },
+      mode = "copy",
+    }))
+    h.eq({ "/tmp/.env: path must stay inside the source worktree" }, git.propagate("/repo", "/new", {
+      paths = { "/tmp/.env" },
+      mode = "copy",
+    }))
+  end,
+
   rejects_unsafe_or_existing_names = function()
     local root = h.temp_repo()
     local repo = assert(git.repository(root))

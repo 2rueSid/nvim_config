@@ -1,7 +1,12 @@
 local M = {}
+local config = {}
 
 local git = require("worktrees.git")
 local session = require("worktrees.session")
+
+function M.setup(opts)
+  config = opts or {}
+end
 
 -- Helper: Create a previewer for fzf-lua
 local function create_previewer(row_lookup)
@@ -199,11 +204,12 @@ function M.create()
     local name = vim.trim(input)
 
     -- Attempt creation
-    local created_worktree, create_err = git.create(repo, name, repo.current_root)
+    local created_worktree, create_err = git.create(repo, name, repo.current_root, config.propagate)
     if not created_worktree then
       vim.notify(create_err, vim.log.levels.ERROR)
       return
     end
+    if create_err then vim.notify(create_err, vim.log.levels.WARN) end
 
     -- Refresh registry from the created worktree's location
     local fresh_repo, repo_err = git.repository(created_worktree.path)

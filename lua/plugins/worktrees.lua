@@ -10,6 +10,12 @@ return {
       },
     },
     cmd = { "WorktreeCreate", "WorktreeList", "WorktreeMerge" },
+    opts = {
+      propagate = {
+        paths = { ".env*", ".venv" },
+        mode = "copy",
+      },
+    },
     keys = {
       { "<leader>wc", function() require("worktrees").create() end, desc = "Create worktree" },
       { "<leader>wl", function() require("worktrees").list() end, desc = "List worktrees" },

@@ -226,7 +226,83 @@ function M.validate_name(repo, name)
   return true
 end
 
-function M.create(repo, name, start_root)
+local function replace_destination(destination)
+  vim.fn.mkdir(vim.fs.dirname(destination), "p")
+  if vim.uv.fs_lstat(destination) and vim.fn.delete(destination, "rf") ~= 0 then
+    return nil, "cannot replace destination"
+  end
+  return true
+end
+
+local function copy_path(source, destination)
+  local stat, stat_err = vim.uv.fs_lstat(source)
+  if not stat then return nil, stat_err end
+  local replaced, replace_err = replace_destination(destination)
+  if not replaced then return nil, replace_err end
+  if stat.type == "link" then
+    local target, target_err = vim.uv.fs_readlink(source)
+    if not target then return nil, target_err end
+    local target_stat = vim.uv.fs_stat(source)
+    return vim.uv.fs_symlink(target, destination, { dir = target_stat and target_stat.type == "directory" })
+  end
+  if stat.type ~= "directory" then return vim.uv.fs_copyfile(source, destination) end
+
+  vim.fn.mkdir(destination, "p")
+  local scanner, scan_err = vim.uv.fs_scandir(source)
+  if not scanner then return nil, scan_err end
+  while true do
+    local name = vim.uv.fs_scandir_next(scanner)
+    if not name then break end
+    local ok, err = copy_path(vim.fs.joinpath(source, name), vim.fs.joinpath(destination, name))
+    if not ok then return nil, err end
+  end
+  return true
+end
+
+local function symlink_path(source, destination)
+  local replaced, replace_err = replace_destination(destination)
+  if not replaced then return nil, replace_err end
+  local stat, err = vim.uv.fs_stat(source)
+  if not stat then return nil, err end
+  return vim.uv.fs_symlink(source, destination, { dir = stat.type == "directory" })
+end
+
+function M.propagate(source_root, destination_root, config)
+  local mode = config.mode or "copy"
+  if mode ~= "copy" and mode ~= "symlink" then return { "mode must be 'copy' or 'symlink'" } end
+
+  local errors, seen = {}, {}
+  for _, pattern in ipairs(config.paths or {}) do
+    local outside = type(pattern) ~= "string" or pattern:match("^[/\\]") or pattern:match("^%a:[/\\]")
+    if not outside then
+      for part in pattern:gmatch("[^/\\]+") do
+        if part == ".." then outside = true break end
+      end
+    end
+    if outside then
+      table.insert(errors, tostring(pattern) .. ": path must stay inside the source worktree")
+    else
+      for _, source in ipairs(vim.fn.glob(vim.fs.joinpath(source_root, pattern), false, true)) do
+        source = vim.fs.normalize(source)
+        if not seen[source] then
+          seen[source] = true
+          local relative = source:sub(#vim.fs.normalize(source_root) + 2)
+          if relative == "" then
+            table.insert(errors, pattern .. ": path must select entries inside the source worktree")
+          else
+            local destination = vim.fs.joinpath(destination_root, relative)
+            local transfer = mode == "symlink" and symlink_path or copy_path
+            local ok, err = transfer(source, destination)
+            if not ok then table.insert(errors, string.format("%s: %s", relative, err)) end
+          end
+        end
+      end
+    end
+  end
+  return errors
+end
+
+function M.create(repo, name, start_root, propagate)
   local valid, err = M.validate_name(repo, name)
   if not valid then return nil, err end
 
@@ -250,13 +326,19 @@ function M.create(repo, name, start_root)
   local result = M.run({ "worktree", "add", "-b", name, destination, "HEAD" }, { cwd = start_root })
   if not result.ok then return nil, failure(result) end
 
+  local propagation_warning
+  if propagate then
+    local errors = M.propagate(start_root, destination, propagate)
+    if #errors > 0 then propagation_warning = "Worktree created, but some paths were not propagated:\n" .. table.concat(errors, "\n") end
+  end
+
   local worktrees, registry_error = worktree_registry(start_root)
   if not worktrees then return nil, registry_error end
   local destination_root = canonical(destination)
   for _, worktree in ipairs(worktrees) do
     if canonical(worktree.path) == destination_root then
       worktree.path = destination
-      return worktree
+      return worktree, propagation_warning
     end
   end
   return nil, "created worktree is not registered: " .. destination
